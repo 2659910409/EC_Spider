@@ -1,5 +1,5 @@
 class Base:
-    def __init__(self,trans_period,date_level):
+    def __init__(self, trans_period, date_level):
         self.trans_period = trans_period
         self.date_level = date_level
 
@@ -7,12 +7,11 @@ class Base:
         pass
 
 
-
 class GetData(Base):
     def __init__(self, web_driver):
         self.web_driver = web_driver
 
-    def locate_page(self,url):
+    def locate_page(self, url):
         pass
 
     def filter_condition(self):
@@ -23,19 +22,8 @@ class GetData(Base):
 
 
 class ParseFile:
-    def __init__(self, file_dir_path):
-        self.file_dir_path = file_dir_path
-
-    def find_file(self):
-        pass
-
-    def parse_file(self):
-        pass
+    pass
 
 
 class DataInput:
-    def __init__(self):
-        pass
-
-    def data_handle(self):
-        pass
+    pass
