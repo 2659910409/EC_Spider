@@ -1,3 +1,9 @@
+import time
+from timeout3 import time
+from retry import retry
+import logging
+
+
 class Base:
     def __init__(self,trans_period,date_level):
         self.trans_period = trans_period
@@ -7,12 +13,11 @@ class Base:
         pass
 
 
-
-class GetData(Base):
-    def __init__(self, web_driver):
+class GetData:
+    def __init__(self,web_driver):
         self.web_driver = web_driver
 
-    def locate_page(self,url):
+    def locate_page(self, url):
         pass
 
     def filter_condition(self):
@@ -38,4 +43,9 @@ class DataInput:
         pass
 
     def data_handle(self):
+        pass
+
+
+class DataBackUp:
+    def __init__(self):
         pass

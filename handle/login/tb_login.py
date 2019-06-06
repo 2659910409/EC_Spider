@@ -7,6 +7,7 @@ from pywinauto.findwindows import find_windows
 from retry import retry
 from timeout3 import timeout
 import ctypes
+import socket
 import pyautogui
 from random import randint, uniform
 from datetime import datetime
@@ -16,9 +17,12 @@ import logging
 SHOP_START_RETRY_TIMES = {}
 # ACCESS = '"chrome.exe" --profile-directory="Profile 1003" --user-data-dir="C:/RPAData/chrome_user/1003_MAKEUP"'
 
-ACCESS = 'chrome.exe'
+SHOP_NAME = '皇家美素佳儿旗舰店'
+SHOP_ID = 1
 DingDingGroupURL = 'https://oapi.dingtalk.com/robot/send?access_token=b65e1a4b8830dcde33c49c0b1ea559263d46eb6f0797dfff24cb2f662888a78a'
-
+LOGIN_URL = 'https://sycm.taobao.com/portal/home.htm'
+USER_DATA_DIR = "D:/chrome_user/Default"
+PROFILE_DIR = "Default"
 
 def sendDingDingMessage(posturl, title, text):
     """发送钉钉消息"""
@@ -33,36 +37,39 @@ def sendDingDingMessage(posturl, title, text):
 
 
 def get_all_chrome_handle():
+    '''
+    :return: 所有打开的chrome浏览器句柄
+    '''
     return find_windows(class_name='Chrome_WidgetWin_1')
+
+def check_port(port,ip='127.0.0.1'):
+    '''
+    :param port: 端口地址
+    :param ip: 检测ip
+    :return: 占用返回0，不占用返回其他值
+    '''
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    return s.connect_ex((ip, port))
 
 
 class TaoLogin:
-    def __init__(self, shop_id, shopname, port):
+    def __init__(self, shop_id, shopname,port=9000):
         self.shop_id = shop_id
         self.shopname = shopname
         self.port = port
+        while not check_port(self.port):
+            self.port += 1
         logging.info('init 初始化完成获取到的店铺为：{}，端口为{}'.format(self.shopname, self.port))
-
-    # def close_before_chrome(self):
-    #     select_sql = "select handle from shops where shopname = '{}'".format(self.shopname)
-    #     csr.execute(select_sql)
-    #     chrome_handle = csr.fetchone()
-    #     if chrome_handle:
-    #         try:
-    #             ctypes.windll.user32.PostMessageA(chrome_handle[0], 0x0010, 0, 0)
-    #         except Exception as e:
-    #             print(e)
-    #             pass
-    #         sleep(2)
 
     @retry(tries=3, delay=2)
     def start_chrome(self):
         # self.close_before_chrome()
         logging.info('已作关闭之前chrome处理，准备开始启动指定浏览器，店铺：{}'.format(self.shopname))
-        access = '{} --start-maximized https://mai.taobao.com/seller_admin.htm'.format(ACCESS, self.port)
+        # access = 'chrome --start-maximized {} --profile-directory="{}" --user-data-dir="{}" --remote-debugging-port={}'.format(LOGIN_URL, PROFILE_DIR, USER_DATA_DIR, self.port)
+        access = 'chrome --start-maximized {} --remote-debugging-port={}'.format(LOGIN_URL, self.port)
         logging.info('店铺：{}，启动参数：{}'.format(self.shopname, access))
         before_handle = get_all_chrome_handle()
-        p = Popen(access, shell=True)
+        p = Popen(access)
         try:
             self.handle = self.check_chrome_start(before_handle)
             logging.info('店铺:{},获取到新的chrome窗口句柄为：{}'.format(self.shopname, self.handle))
@@ -88,7 +95,7 @@ class TaoLogin:
     @timeout(seconds=30)
     def wait_load_ok(self):
         while True:
-            rect = pyautogui.locateOnScreen('./images/login_btn.png', region=(1150, 200, 400, 400), confidence=0.8)
+            rect = pyautogui.locateOnScreen('./images/login_btn.png', region=(1242,321,465,404), confidence=0.8)
             if not rect:
                 sleep(1)
             else:
@@ -97,20 +104,20 @@ class TaoLogin:
 
     def click_login_orgin(self):
         # 1175,275
-        rect = pyautogui.locateOnScreen('./images/login_orgin.png', region=(1150, 200, 400, 400), confidence=0.8)
+        rect = pyautogui.locateOnScreen('./images/login_orgin.png', region=(1242,321,465,404), confidence=0.8)
         pyautogui.click(rect[0] + 25, rect[1] + 38)
         sleep(1)
         pyautogui.click(rect[0], rect[1])
         sleep(1)
 
     def check_span(self):
-        return pyautogui.locateOnScreen('./images/span.png', region=(1150, 200, 400, 400), confidence=0.8)
+        return pyautogui.locateOnScreen('./images/span.png', region=(1242,321,465,404), confidence=0.8)
 
     def check_move_span_ok(self):
-        return pyautogui.locateOnScreen('./images/span_ok.png', region=(1150, 200, 400, 400), confidence=0.8)
+        return pyautogui.locateOnScreen('./images/span_ok.png', region=(1242,321,465,404), confidence=0.8)
 
     def click_span_refresh(self):
-        rect = pyautogui.locateOnScreen('./images/span_refresh.png', region=(1150, 200, 400, 400), confidence=0.8)
+        rect = pyautogui.locateOnScreen('./images/span_refresh.png', region=(1242,321,465,404), confidence=0.8)
         if not rect:
             raise Exception
         x = int((rect[0] * 2 + rect[2]) / 2)
@@ -126,7 +133,7 @@ class TaoLogin:
         sleep(0.3)
         # print('hsroll')
         sleep(1)
-        rect = pyautogui.locateOnScreen('./images/span.png', region=(1150, 200, 400, 400), confidence=0.8)
+        rect = pyautogui.locateOnScreen('./images/span.png', region=(1242,321,465,404), confidence=0.8)
         x = int((rect[0] * 2 + rect[2]) / 2)
         y = int((rect[1] * 2 + rect[3]) / 2)
         pyautogui.moveTo(x, y, 0.5, pyautogui.easeInOutCirc)
@@ -156,7 +163,7 @@ class TaoLogin:
             sleep(1)
 
     def check_msg(self):
-        rect = pyautogui.locateOnScreen('./images/msg_check.png', region=(1150, 200, 400, 400), confidence=0.8)
+        rect = pyautogui.locateOnScreen('./images/msg_check.png', region=(1242,321,465,404), confidence=0.8)
         if rect:
             logging.warning('点击登录按钮并等待3S之后出现短信验证框，将发送告警信息并等待人工处理，店铺：{}'.format(self.shopname))
             self.warning_and_wait_people()
@@ -182,7 +189,7 @@ class TaoLogin:
         sleep(1)
 
     def get_login_btn_locate(self):
-        login_locate = pyautogui.locateOnScreen('./images/login_btn.png', region=(1150, 200, 400, 400), confidence=0.8)
+        login_locate = pyautogui.locateOnScreen('./images/login_btn.png', region=(1242,321,465,404), confidence=0.8)
         center_x = int((login_locate[0] * 2 + login_locate[2]) / 2)
         center_y = int((login_locate[1] * 2 + login_locate[3]) / 2)
         return center_x, center_y
@@ -190,7 +197,7 @@ class TaoLogin:
     def check_login_btn(self):
         pyautogui.hscroll(-100)
         sleep(0.5)
-        rect = pyautogui.locateOnScreen('./images/login_btn.png', region=(1150, 200, 400, 400), confidence=0.8)
+        rect = pyautogui.locateOnScreen('./images/login_btn.png', region=(1242,321,465,404), confidence=0.8)
         if rect:
             logging.error('等待3S后登录按钮仍然在页面上,将结束本次登录，店铺：{}'.format(self.shopname))
             raise Exception
@@ -263,5 +270,5 @@ class TaoLogin:
 
 
 if __name__ == '__main__':
-    tb = TaoLogin(3, '皇家美素佳儿旗舰店:d11数据', 9000)
+    tb = TaoLogin(SHOP_ID, SHOP_NAME)
     tb.run()
