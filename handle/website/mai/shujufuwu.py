@@ -5,6 +5,7 @@ import logging
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
+
 class Base:
     def __init__(self, trans_period, date_level):
         self.trans_period = trans_period
