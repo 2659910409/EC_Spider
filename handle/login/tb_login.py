@@ -14,7 +14,7 @@ from datetime import datetime
 import logging
 
 # conn, csr = utils.init_db()
-SHOP_START_RETRY_TIMES = {}
+# SHOP_START_RETRY_TIMES = {}
 # ACCESS = '"chrome.exe" --profile-directory="Profile 1003" --user-data-dir="C:/RPAData/chrome_user/1003_MAKEUP"'
 
 SHOP_NAME = '皇家美素佳儿旗舰店'
