@@ -3,6 +3,7 @@ from handle.err_message import ErrorEnum
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
+
 class Base:
     def __init__(self, store, data_page, port):
         self.store = store
