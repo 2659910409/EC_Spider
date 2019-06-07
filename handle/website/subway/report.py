@@ -2,13 +2,24 @@ from handle.website.base import Base
 from handle.err_message import ErrorEnum
 from handle.common.logging import logging
 from handle.common.time import time
+from retry import retry
 
 
 class SubReport(Base):
-    def _operator_time_control(self, time):
+    def _operator_time_control(self, start_time, end_time):
+
         pass
 
-    def operation_page(self):
+    @retry(tries=3, delay=2)
+    def operation_page(self, url):
+        try:
+            self.web_driver.get(url) # 第一次请求到达平台默认页
+            self.web_driver.close()
+            self.web_driver.get(url)  # 第二次请求是为了到达指定的爬虫页
+
+        except as e:
+            print(e, '请求失败,请检查传入的url是否有效:{}'.format(url))
+
         return True
 
     def operation_data_process(self):

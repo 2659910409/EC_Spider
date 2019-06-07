@@ -1,18 +1,18 @@
 from handle.common.db import DB
 from handle.err_message import ErrorEnum
-
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 
 class Base:
     def __init__(self, store, data_page, port):
         self.store = store
         self.data_page = data_page
         self.port = port
-        self.webdriver = None
+        self.web_driver = None
         self.source_data = None
         self.data = None
         self.file = None
         self.error = None
-
 
     def get_webdriver(self):
         """
@@ -20,8 +20,15 @@ class Base:
         :param port:
         :return: True/False
         """
-        self.webdriver = None
+        try:
+            chrome_options = Options()
+            chrome_options.add_experimental_option("debuggerAddress", "127.0.0.1:{}".format(self.port))
+            self.web_driver = webdriver.Chrome(chrome_options=chrome_options)
+        except Exception as e:
+            print('无法接管端口为{}的浏览器'.format(self.port))
+            return False
         return True
+
 
     def operation_page(self):
         """
