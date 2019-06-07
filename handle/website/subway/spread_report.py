@@ -2,8 +2,9 @@ from handle.website.base import Base
 from handle.err_message import ErrorEnum
 from handle.common import logging
 from handle.common import time
+from handle.common import db
 from retry import retry
-
+import re
 
 class SpreadReport(Base):
     def _operator_time_control(self, start_date=None, end_date=None):
@@ -67,6 +68,25 @@ class SpreadReport(Base):
         pass
 
     def operation_data_process(self):
+        db_conn, db_cur = db.create_conn()
+        db_cur.execute(
+            "select column_name from information_schema.columns where table_name = {} and table_schema = {};").format(self.table_name, self.db_name)
+        field_name = db_cur.fetchall()
+        field_name_list = []
+        for x in field_name:
+            field_name_list.append(x[0])
+        data_sheets = pd.read_excel('C:/Users/11249/Desktop/源数据文件-副本/test.xlsx', None)
+        sheets_name = list(data_sheets.keys())
+        df = data_sheets[sheets_name[0]]
+        row_cnt = df.shape[0]
+        col_cnt = df.shape[1]
+        if row_cnt <= 0 or col_cnt <= 0:  # 需要判断表格中是否存在业务数据
+            pass
+        cols_name = df.columns.tolist()
+        for col_name in cols_name:
+            col_name_new = re.sub(r'[\(\)]', '_', re.sub(r'\(%\)', '', col_name))
+            df.rename(columns={col_name: col_name_new}, inplace=True)
+        cols_name_new = df.columns.tolist()
         return True
 
     def operation_data_input(self):

@@ -53,7 +53,7 @@ class SubReport(Base):
         return True
 
     @retry(tries=3, delay=2)
-    def operation_page(self, num=None, report_type=None, start_date=None, end_date=None):
+    def operation_page(self):
         """
         :param num: 转化周期筛选
         :param report_type: 报表类型,目前支持日报'day',月报'month',及自定义日期区间的报表
@@ -61,12 +61,14 @@ class SubReport(Base):
         :param end_date: 日期区间的结束日期,需自定义日期报表时指定
         :return: True/False
         """
+
         return True
 
     def _get_kpi_data(self):
         pass
 
     def operation_data_process(self):
+
         return True
 
     def operation_data_input(self):
