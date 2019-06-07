@@ -6,8 +6,18 @@ from retry import retry
 
 
 class SubReport(Base):
-    def _operator_time_control(self, start_time, end_time):
+    def _operator_time_control(self, report_type=None, start_date=None, end_date=None):
+        """
+        :param report_type: 报表类型,目前支持日报'day',月报'month',及自定义日期区间的报表
+        :param start_date: 日期区间的开始日期,需自定义日期报表时指定
+        :param end_date: 日期区间的结束日期,需自定义日期报表时指定
+        :return: True/False
+        """
+        if report_type == 'day':
 
+        pass
+
+    def _operator_period_control(self, num):
         pass
 
     @retry(tries=3, delay=2)
@@ -16,7 +26,6 @@ class SubReport(Base):
             self.web_driver.get(url) # 第一次请求到达平台默认页
             self.web_driver.close()
             self.web_driver.get(url)  # 第二次请求是为了到达指定的爬虫页
-
         except as e:
             print(e, '请求失败,请检查传入的url是否有效:{}'.format(url))
 
