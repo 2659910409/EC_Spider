@@ -5,7 +5,7 @@ from handle.common import time
 from retry import retry
 
 
-class SubReport(Base):
+class SpreadReport(Base):
     def _operator_time_control(self, start_date=None, end_date=None):
         """
         :param start_date: 日期区间的开始日期,需自定义日期报表时指定
@@ -63,7 +63,7 @@ class SubReport(Base):
         """
         return True
 
-    def _get_kpi_data(self):
+    def download_file(self):
         pass
 
     def operation_data_process(self):
@@ -74,9 +74,10 @@ class SubReport(Base):
 
     def operation_data_backup(self):
         return True
+    pass
 
 
-class SubReportDay(SubReport):
+class SpreadReportDay(SubReport):
     @retry(tries=3, delay=2)
     def operation_page(self, url, num=None):
         """
@@ -117,31 +118,5 @@ class SubReportDay(SubReport):
     #     return True
 
 
-class SubReportMonth(SubReport):
-    @retry(tries=3, delay=2)
-    def operation_page(self, num=None, report_type=None):
-        """
-        :param num: 转化周期筛选
-        :param report_type: 报表类型,目前支持日报'day',月报'month',及自定义日期区间的报表
-        :param start_date: 日期区间的开始日期,需自定义日期报表时指定
-        :param end_date: 日期区间的结束日期,需自定义日期报表时指定
-        :return: True/False
-        """
-        start_date, end_date = time.get_last_month_date(time.get_current_date())
-        # 多条件筛选
-        self._operator_period_control(num)
-        self._operator_time_control(start_date, end_date)
-        self._operator_point_control()
-        # 取数
-        self.web_driver.find_element_in_xpath('').text
-
-    def operation_data_process(self):
-        return True
-
-    def operation_data_input(self):
-        return True
-
-    def operation_data_backup(self):
-        return True
-
-
+class SpreadReportMonth():
+    pass
