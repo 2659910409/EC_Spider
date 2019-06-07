@@ -4,11 +4,13 @@ from handle.common import logging
 from handle.common import time
 from handle.common import db
 from retry import retry
+import pandas as pd
 import re
 
 class SpreadReport(Base):
     def _operator_time_control(self, start_date=None, end_date=None):
         """
+        时间筛选控件操作
         :param start_date: 日期区间的开始日期,需自定义日期报表时指定
         :param end_date: 日期区间的结束日期,需自定义日期报表时指定
         :return: True/False
@@ -22,6 +24,7 @@ class SpreadReport(Base):
 
     def _operator_period_control(self, num=15):
         """
+        转化周期控件操作
         :param num:
         :return:
         """
@@ -41,6 +44,7 @@ class SpreadReport(Base):
 
     def _locate_page(self,url):
         """
+        定位到指定取数的页面
         :param url: 指定抓取页面的url
         :return: True/False
         """
@@ -64,18 +68,23 @@ class SpreadReport(Base):
         """
         return True
 
-    def download_file(self):
-        pass
+    def wait_download_ok(self):
+        """
+        等待文件下载完成
+        :return: 下载文件的绝对路径
+        """
+        return True
 
     def operation_data_process(self):
         db_conn, db_cur = db.create_conn()
+        file_path = self.wait_download_ok()
         db_cur.execute(
             "select column_name from information_schema.columns where table_name = {} and table_schema = {};").format(self.table_name, self.db_name)
         field_name = db_cur.fetchall()
         field_name_list = []
         for x in field_name:
             field_name_list.append(x[0])
-        data_sheets = pd.read_excel('C:/Users/11249/Desktop/源数据文件-副本/test.xlsx', None)
+        data_sheets = pd.read_excel(file_path, None)
         sheets_name = list(data_sheets.keys())
         df = data_sheets[sheets_name[0]]
         row_cnt = df.shape[0]
