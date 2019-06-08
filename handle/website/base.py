@@ -22,7 +22,6 @@ class Base:
         self.error = None
         self.FIELD_NAME = None
 
-
     def get_webdriver(self):
         """
         根据端口获取浏览器
@@ -104,24 +103,6 @@ class Base:
         else:
             print('解压出多个文件')
         return symbol
-
-    def operation_data_process(self):
-        """
-        数据处理
-        1） 数据格式转换
-        2） 数据列类型转换
-        :return: True/False
-        """
-        self.data = self.source_data
-        return True
-
-    def operation_data_input(self):
-        """
-        数据入库
-        :return: True/False
-        """
-        DB.input_batch(self.data)
-        return True
 
     def operation_data_backup(self, cache_file_path):
         """
