@@ -22,7 +22,7 @@ class SpreadReport(Base):
         self.web_driver.find_element_in_xpath('//*[@id="mx_423"]').click()
 
 
-    def _operator_period_control(self, num=15):
+    def _operator_period_control(self, period):
         """
         转化周期控件操作
         :param num:
@@ -57,45 +57,7 @@ class SpreadReport(Base):
             return False
         return True
 
-    @retry(tries=3, delay=2)
-    def operation_page(self, num=None, report_type=None, start_date=None, end_date=None):
-        """
-        :param num: 转化周期筛选
-        :param report_type: 报表类型,目前支持日报'day',月报'month',及自定义日期区间的报表
-        :param start_date: 日期区间的开始日期,需自定义日期报表时指定
-        :param end_date: 日期区间的结束日期,需自定义日期报表时指定
-        :return: True/False
-        """
-        return True
-
-    def wait_download_ok(self):
-        """
-        等待文件下载完成
-        :return: 下载文件的绝对路径
-        """
-        return True
-
     def operation_data_process(self):
-        db_conn, db_cur = db.create_conn()
-        file_path = self.wait_download_ok()
-        db_cur.execute(
-            "select column_name from information_schema.columns where table_name = {} and table_schema = {};").format(self.table_name, self.db_name)
-        field_name = db_cur.fetchall()
-        field_name_list = []
-        for x in field_name:
-            field_name_list.append(x[0])
-        data_sheets = pd.read_excel(file_path, None)
-        sheets_name = list(data_sheets.keys())
-        df = data_sheets[sheets_name[0]]
-        row_cnt = df.shape[0]
-        col_cnt = df.shape[1]
-        if row_cnt <= 0 or col_cnt <= 0:  # 需要判断表格中是否存在业务数据
-            pass
-        cols_name = df.columns.tolist()
-        for col_name in cols_name:
-            col_name_new = re.sub(r'[\(\)]', '_', re.sub(r'\(%\)', '', col_name))
-            df.rename(columns={col_name: col_name_new}, inplace=True)
-        cols_name_new = df.columns.tolist()
         return True
 
     def operation_data_input(self):
@@ -108,7 +70,7 @@ class SpreadReport(Base):
 
 class SpreadReportDay(SubReport):
     @retry(tries=3, delay=2)
-    def operation_page(self, url, num=None):
+    def operation_page(self):
         """
         :param url: 指定抓取页面的url
         :param num: 转化周期筛选
@@ -120,7 +82,7 @@ class SpreadReportDay(SubReport):
         start_date = time.get_last_month_date(time.get_current_date())[0]
         end_date = time.date_add(time.get_current_date(), -1)
         # 多条件筛选
-        self._operator_period_control(num)
+        self._operator_period_control(self.period)
         self._operator_time_control(start_date, end_date)
         self._operator_point_control()
         # 取数
@@ -129,6 +91,38 @@ class SpreadReportDay(SubReport):
         return True
 
     def operation_data_process(self):
+        """
+        下载文件并解析文件数据
+        :return:
+        """
+        db_conn, db_cur = db.create_conn()
+        file_path = self.is_download_finish()
+        db_cur.execute(
+            "select column_name from information_schema.columns where table_name = {} and table_schema = {};").format(self.table_name, self.db_name)
+        field_name = db_cur.fetchall()
+        field_name_list = []
+        for x in field_name:
+            field_name_list.append(x[0])
+        data_sheets = pd.read_excel(cache_file_path, None)
+        sheets_name = list(data_sheets.keys())
+        df = data_sheets[sheets_name[0]]
+        # 添加默认字段并赋值
+        df = pd.concat([df, pd.DataFrame(columns=self.FIELD_NAME)], sort=False)
+        df['店铺id'] = '3'
+        df['店铺名'] = '皇家美素佳儿旗舰店'
+        df['入库时间'] = datetime.datetime.now()
+        df['取数时间'] = datetime.datetime.now()
+        row_cnt = df.shape[0]
+        col_cnt = df.shape[1]
+        if row_cnt <= 0 or col_cnt <= 0:  # 需要判断表格中是否存在业务数据
+            pass
+        cols_name = df.columns.tolist()
+        for col_name in cols_name:
+            col_name_new = re.sub(r'[\(\)]', '_', re.sub(r'\(%\)', '', col_name))
+            df.rename(columns={col_name: col_name_new}, inplace=True)
+        cols_name_new = df.columns.tolist()
+        increase_field = list(set(cols_name_new) - set(field_name_list))
+        reduce_field = list(set(field_name_list) - set(cols_name_new))
         return True
 
     def operation_data_input(self):
@@ -148,4 +142,24 @@ class SpreadReportDay(SubReport):
 
 
 class SpreadReportMonth():
-    pass
+    @retry(tries=3, delay=2)
+    def operation_page(self):
+        """
+        :param url: 指定抓取页面的url
+        :param num: 转化周期筛选
+        :param report_type: 报表类型,目前支持日报'day',月报'month',及自定义日期区间的报表
+        :param start_date: 日期区间的开始日期,需自定义日期报表时指定
+        :param end_date: 日期区间的结束日期,需自定义日期报表时指定
+        :return: True/False
+        """
+        symbol = False
+        start_date = time.get_last_month_date(time.get_current_date())[0]
+        end_date = time.date_add(time.get_current_date(), -1)
+        # 多条件筛选
+        self._operator_period_control(self.period)
+        self._operator_time_control(start_date, end_date)
+        self._operator_point_control()
+        # 取数
+        self.web_driver.find_element_in_xpath('').text
+        symbol = True
+        return symbol
