@@ -123,11 +123,15 @@ class Base:
         DB.input_batch(self.data)
         return True
 
-    def operation_data_backup(self, cache_path, cache_file_path):
+    def operation_data_backup(self, cache_file_path):
         """
         目前只针对下载文件 进行数据备份
         :return: True/False
         """
-
-        shutil.move(cache_file_path, self.backup_path)
+        backup_dir = 'D:/' + self.data + '/' + self.port  # 目录规则:平台名-菜单名-页面名-模块名-报表类型
+        if os.path.exists(backup_dir):
+            print('该目录已存在')
+        else:
+            os.makedirs(backup_dir)
+        shutil.move(cache_file_path, self.backup_dir)
         return True

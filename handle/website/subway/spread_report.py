@@ -133,7 +133,6 @@ class SpreadReportDay(SubReport):
         db_conn.commit()
 
 
-
 class SpreadReportMonth():
     @retry(tries=3, delay=2)
     def operation_page(self):
