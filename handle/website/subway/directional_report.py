@@ -93,7 +93,9 @@ class SpreadReportDay(SubReport):
         field_tuple = tuple(field_name_list)
         # 读取文件并解析
         cache_file_name, cache_file_path = self.is_download_finish()
-        df = pd.read_csv(cache_file_path)
+        data_sheets = pd.read_excel(cache_file_path, None)
+        sheets_name = list(data_sheets.keys())
+        df = data_sheets[sheets_name[0]]
         if df.shape[0] <= 0 or df.shape[1] <= 0:  # 需要判断表格中是否存在业务数据
             print('下载的文件为空文件')
         # 添加默认字段并赋值

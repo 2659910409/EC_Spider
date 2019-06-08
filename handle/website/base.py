@@ -128,6 +128,6 @@ class Base:
         目前只针对下载文件 进行数据备份
         :return: True/False
         """
-        if len(os.listdir(cache_path)) >= 2:
-            shutil.move(cache_file_path, self.backup_path)
+
+        shutil.move(cache_file_path, self.backup_path)
         return True
