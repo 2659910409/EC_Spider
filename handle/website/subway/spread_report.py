@@ -42,23 +42,23 @@ class SpreadReport(Base):
         # self.web_driver.find_element_in_xpath('').click()
         # self.web_driver.find_element_in_xpath('').click()
 
-    def _locate_page(self,url):
+    def _locate_page(self):
         """
         定位到指定取数的页面
         :param url: 指定抓取页面的url
         :return: True/False
         """
         try:
-            self.web_driver.get(url) # 第一次请求到达平台默认页
-            self.web_driver.close()
-            self.web_driver.get(url)  # 第二次请求是为了到达指定的爬虫页
+            self.web_driver.get(self.url) # 第一次请求到达平台默认页
+            self.web_driver.close(self.url)
+            self.web_driver.get(self.url)  # 第二次请求是为了到达指定的爬虫页
         except as e:
-            print(e, '请求失败,请检查传入的url是否有效:{}'.format(url))
+            print(e, '请求失败,请检查传入的url是否有效:{}'.format(self.url))
             return False
         return True
 
 
-class SpreadReportDay(SubReport):
+class SpreadReportDay(SpreadReport):
     @retry(tries=3, delay=2)
     def operation_page(self):
         """
@@ -98,10 +98,10 @@ class SpreadReportDay(SubReport):
             print('下载的文件为空文件')
         # 添加默认字段并赋值
         df = pd.concat([df, pd.DataFrame(columns=self.FIELD_NAME)], sort=False)
-        df['店铺id'] = '3'
-        df['店铺名'] = '皇家美素佳儿旗舰店'
-        df['入库时间'] = datetime.datetime.now()
-        df['取数时间'] = datetime.datetime.now()
+        df['店铺id'] = self.store_id
+        df['店铺名'] = self.store_name
+        df['入库时间'] = time.get_current_timestamp()
+        df['取数时间'] = time.get_current_timestamp()
         cols_name = df.columns.tolist()
         # 将不符合命名规则的字段名重命名
         for col_name in cols_name:
@@ -132,8 +132,14 @@ class SpreadReportDay(SubReport):
         db_cur.executemany(insert_sql, data_list)
         db_conn.commit()
 
+    def run(self):
+        self.get_webdriver()
+        self._locate_page()
 
-class SpreadReportMonth():
+        pass
+
+
+class SpreadReportMonth(SpreadReport):
     @retry(tries=3, delay=2)
     def operation_page(self):
         """

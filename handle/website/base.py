@@ -11,8 +11,13 @@ from timeout3 import timeout
 
 
 class Base:
-    def __init__(self, store, data_page, port):
-        self.store = store
+    def __init__(self, data_page, port, default_field):
+        """
+        初始化爬虫任务所需的任务信息
+        :param data_page:
+        :param port:
+        :param default_field: 默认添加的字段的值列表
+        """
         self.data_page = data_page
         self.port = port
         self.web_driver = None
@@ -20,7 +25,8 @@ class Base:
         self.data = None
         self.file = None
         self.error = None
-        self.FIELD_NAME = None
+        self.default_field = default_field
+        self.url = None
 
     def get_webdriver(self):
         """
@@ -38,6 +44,11 @@ class Base:
         return True
 
     def wait_download(self, cache_path):
+        """
+        等待文件下载
+        :param cache_path:
+        :return:
+        """
         atton = True
         # timeout配置
         ind = 0
@@ -60,7 +71,7 @@ class Base:
 
     def is_download_finish(self, cache_path):
         """
-        判断文件是否完成
+        判断文件是否下载完成
         :param cache_path: <class 'str'> 缓存路径
         :return:文件名和文件路径
         """
@@ -93,6 +104,12 @@ class Base:
         return cache_file_name, cache_file_path
 
     def wait_unzip_finish(self, cache_path, cache_file_path):
+        """
+        对压缩文件解压缩
+        :param cache_path:
+        :param cache_file_path:
+        :return: True/False
+        """
         symbol = False
         with zipfile.ZipFile(cache_file_path) as zfile:
             zfile.extractall(path=cache_path)
@@ -117,5 +134,3 @@ class Base:
         shutil.move(cache_file_path, self.backup_dir)
         return True
 
-    def run(self):
-        pass
