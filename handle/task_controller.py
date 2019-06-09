@@ -38,4 +38,4 @@ class TaskController:
             self.obj.task_added()
         else:
             self.error = ErrorEnum.ERROR_9002
-            self.error.value.set_msg(('未匹配到任务func name:'+self.name+',param:'+func))
+            self.error.value.set_msg(('未匹配到任务func name:'+self.name+',func:'+func))

@@ -8,17 +8,20 @@ import re
 import zipfile
 import shutil
 from timeout3 import timeout
+from service.store_service import StoreService
+from service.page_data_service import PageDataService
 
 
 class Base:
-    def __init__(self, data_page, port, default_field):
+    def __init__(self, store_id, data_page_id, port):
         """
         初始化爬虫任务所需的任务信息
         :param data_page:
         :param port:
         :param default_field: 默认添加的字段的值列表
         """
-        self.data_page = data_page
+        self.store = StoreService.get_store(store_id)
+        self.data_page = PageDataService.get_page_data(data_page_id)
         self.port = port
         self.web_driver = None
         self.source_data = None

@@ -7,9 +7,9 @@ if __name__ == '__main__':
     tc.run('task_added')
     if tc.is_error():
         print('-1-', tc.error)
-        print('-1-', tc.error.value)
+        print('-1-', tc.error.print())
     tc.run('task_added123')
     if tc.is_error():
         print('-2-', tc.error)
-        print('-2-', tc.error.value.get_err_msg())
+        print('-2-', tc.error.value.print())
     print('----------456-------------')

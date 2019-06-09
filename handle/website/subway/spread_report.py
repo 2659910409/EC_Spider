@@ -1,8 +1,8 @@
 from handle.website.base import Base
 from handle.err_message import ErrorEnum
-from handle.common import logging
+from handle.common.logging import logging
 from handle.common import time
-from handle.common import db
+from handle.common.db import DB
 from retry import retry
 import pandas as pd
 import re
@@ -52,7 +52,7 @@ class SpreadReport(Base):
             self.web_driver.get(self.url) # 第一次请求到达平台默认页
             self.web_driver.close(self.url)
             self.web_driver.get(self.url)  # 第二次请求是为了到达指定的爬虫页
-        except as e:
+        except Exception as e:
             print(e, '请求失败,请检查传入的url是否有效:{}'.format(self.url))
             return False
         return True
@@ -81,7 +81,7 @@ class SpreadReportDay(SpreadReport):
         :return: data_frame
         """
         # 从数据库读取目标表的所有字段名
-        db_conn, db_cur = db.create_conn()
+        db_conn, db_cur = DB.create_conn()
         db_cur.execute(
             "select column_name from information_schema.columns where table_name = {} and table_schema = {};").format(
             self.table_name, self.db_name)
@@ -129,8 +129,9 @@ class SpreadReportDay(SpreadReport):
         col_cnt = df.shape[1] # 取出data_frame列数
         data_list = list(df.itertuples(index=False, name=None)) # 将data_frame每一行转化为元组放入列表中
         insert_sql = "insert into {} {} values (%s{})".format(self.table_name, field_tuple, ',%s'*(col_cnt-1))
-        db_cur.executemany(insert_sql, data_list)
-        db_conn.commit()
+        conn = DB.create_conn()
+        conn.cursor().executemany(insert_sql, data_list)
+        conn.commit()
 
     def run(self):
         self.get_webdriver()

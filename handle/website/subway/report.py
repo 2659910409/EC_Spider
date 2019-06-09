@@ -47,7 +47,7 @@ class SubReport(Base):
             self.web_driver.get(url) # 第一次请求到达平台默认页
             self.web_driver.close()
             self.web_driver.get(url)  # 第二次请求是为了到达指定的爬虫页
-        except as e:
+        except Exception as e:
             print(e, '请求失败,请检查传入的url是否有效:{}'.format(url))
             return False
         return True
