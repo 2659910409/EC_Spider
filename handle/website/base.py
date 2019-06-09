@@ -116,3 +116,6 @@ class Base:
             os.makedirs(backup_dir)
         shutil.move(cache_file_path, self.backup_dir)
         return True
+
+    def run(self):
+        pass
