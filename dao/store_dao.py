@@ -37,6 +37,9 @@ class StoreDAO:
             self.id = _id
             self.store_name = store_name
 
+    def increase_store(self, store_name):
+        pass
+
 
 class StorePropertyDAO:
     def __init__(self, store_id):
