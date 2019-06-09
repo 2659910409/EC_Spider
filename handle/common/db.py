@@ -16,6 +16,22 @@ class DB:
         db_cur = db_conn.cursor()
         return db_conn, db_cur
 
+    def get_work_info(self, work_name):
+        """
+        根据接收的任务名查找任务详细
+        :param work_name: 任务名称
+        :return:
+        """
+        db_conn, db_dur = self.create_conn()
+        work_info_sql = "select * from t_task where work_name = {}".format(work_name)
+        db_dur.execute(work_info_sql)
+        work_info = db_dur.fetchall()
+        return work_info
+
+
+
+
+
     def input(self, data):
         """
         delete data business primary key
