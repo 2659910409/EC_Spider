@@ -31,7 +31,6 @@ class Base:
     def get_webdriver(self):
         """
         根据端口获取浏览器
-        :param port: 已打开的浏览器服务端口
         :return: True/False
         """
         try:
