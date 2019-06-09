@@ -12,54 +12,34 @@ import pyautogui
 from random import randint, uniform
 from datetime import datetime
 import logging
-
-# conn, csr = utils.init_db()
-# SHOP_START_RETRY_TIMES = {}
-# ACCESS = '"chrome.exe" --profile-directory="Profile 1003" --user-data-dir="C:/RPAData/chrome_user/1003_MAKEUP"'
-
-SHOP_NAME = '皇家美素佳儿旗舰店'
-SHOP_ID = 1
-DingDingGroupURL = 'https://oapi.dingtalk.com/robot/send?access_token=b65e1a4b8830dcde33c49c0b1ea559263d46eb6f0797dfff24cb2f662888a78a'
-LOGIN_URL = 'https://sycm.taobao.com/portal/home.htm'
-USER_DATA_DIR = "D:/chrome_user/Default"
-PROFILE_DIR = "Default"
-
-def sendDingDingMessage(posturl, title, text):
-    """发送钉钉消息"""
-    text = title + '\n' + text
-    # 群：爬虫系统开发
-    data = {"msgtype": "text", "text": {"content": text}, "at": {"atMobiles": [], "isAtAll": False}}
-    data = json.dumps(data)
-    data = bytes(data, 'utf-8')
-    req = request.Request(posturl, headers={"Content-Type": "application/json; charset=utf-8"})
-    response = request.urlopen(req, data)
-    return response.read()
-
-
-def get_all_chrome_handle():
-    '''
-    :return: 所有打开的chrome浏览器句柄
-    '''
-    return find_windows(class_name='Chrome_WidgetWin_1')
-
-def check_port(port,ip='127.0.0.1'):
-    '''
-    :param port: 端口地址
-    :param ip: 检测ip
-    :return: 占用返回0，不占用返回其他值
-    '''
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    return s.connect_ex((ip, port))
+from handle.common.monitor import sendDingDingMessage
 
 
 class TaoLogin:
-    def __init__(self, shop_id, shopname,port=9000):
+    def __init__(self, shop_id, shopname, user_data_dir , profile_dir, port=9000):
         self.shop_id = shop_id
         self.shopname = shopname
+        self.user_data_dir = user_data_dir
+        self.profile_dir = profile_dir
         self.port = port
-        while not check_port(self.port):
+        while not self.check_port(self.port):
             self.port += 1
         logging.info('init 初始化完成获取到的店铺为：{}，端口为{}'.format(self.shopname, self.port))
+
+    def check_port(port, ip='127.0.0.1'):
+        '''
+        :param port: 端口地址
+        :param ip: 检测ip
+        :return: 占用返回0，不占用返回其他值
+        '''
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        return s.connect_ex((ip, port))
+
+    def get_all_chrome_handle():
+        '''
+        :return: 所有打开的chrome浏览器句柄
+        '''
+        return find_windows(class_name='Chrome_WidgetWin_1')
 
     @retry(tries=3, delay=2)
     def start_chrome(self):
@@ -68,7 +48,7 @@ class TaoLogin:
         # access = 'chrome --start-maximized {} --profile-directory="{}" --user-data-dir="{}" --remote-debugging-port={}'.format(LOGIN_URL, PROFILE_DIR, USER_DATA_DIR, self.port)
         access = 'chrome --start-maximized {} --remote-debugging-port={}'.format(LOGIN_URL, self.port)
         logging.info('店铺：{}，启动参数：{}'.format(self.shopname, access))
-        before_handle = get_all_chrome_handle()
+        before_handle = self.get_all_chrome_handle()
         p = Popen(access)
         try:
             self.handle = self.check_chrome_start(before_handle)
@@ -86,7 +66,7 @@ class TaoLogin:
     @timeout(seconds=30)
     def check_chrome_start(self, before_handle):
         while True:
-            after_handle = get_all_chrome_handle()
+            after_handle = self.get_all_chrome_handle()
             chrome_handle = list(set(after_handle) - set(before_handle))
             if chrome_handle:
                 return chrome_handle[0]
@@ -269,6 +249,4 @@ class TaoLogin:
             logging.error('店铺最小化失败，店铺：{}，错误信息：{}'.format(self.shopname, e))
 
 
-if __name__ == '__main__':
-    tb = TaoLogin(SHOP_ID, SHOP_NAME)
-    tb.run()
+
