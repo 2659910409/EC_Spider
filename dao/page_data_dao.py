@@ -89,7 +89,7 @@ class PageDataConfDao:
             self.created = rows[0][9]
             self.updated = rows[0][10]
         else:
-            print('page_data_conf_id 对应实例,page_data_conf_id:', page_data_conf_id)
+            print('page_data_conf_id对应实例,page_data_conf_id:', page_data_conf_id)
             raise Exception
 
 
@@ -130,10 +130,10 @@ class PageDataDao:
         self.page_info = PageDao(self.page_id)
         rows = DB.query('select id, page_data_id, col_name, col_type, col_description, check_col_name, col_name, is_file_column, is_primary_key, is_data_maintenance, created, updated  from t_page_data_column where id = ' + page_data_id + ';')
         for row in rows:
-            self.page_data_columns.append(PageDataColumnDao(row)[1])
+            self.page_data_columns.append(PageDataColumnDao(row))
         rows = DB.query('select p_type, p_key, p_value, p_description from t_page_data_conf where page_data_id = \''+page_data_id+'\';')
         for row in rows:
-            self.page_data_confs.append(PageDataConfDao(row)[1])
+            self.page_data_confs.append(PageDataConfDao(row))
 
     def _init_by_name(self, store_name):
         pass

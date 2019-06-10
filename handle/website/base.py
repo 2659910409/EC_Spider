@@ -10,26 +10,30 @@ import shutil
 from timeout3 import timeout
 from service.store_service import StoreService
 from service.page_data_service import PageDataService
+from service.page_data_service import PageService
 
 
 class Base:
-    def __init__(self, store_id, data_page_id, port):
+    def __init__(self, store_id, page_id, page_data_id, db, port, cache_path):
         """
-        初始化爬虫任务所需的任务信息
-        :param data_page:
-        :param port:
-        :param default_field: 默认添加的字段的值列表
+        初始化爬虫任务所需的信息
+        :param store_id: 店铺id,用来获取店铺对象
+        :param page_id: 抓取的页面id,用来获取页面对象
+        :param page_data_id: 抓取的页面数据块id,用来获取页面数据块对象
+        :param db: 数据库对象
+        :param port: 已开启的浏览器服务端口
+        :param cache_path: 浏览器文件下载缓存目录路径
         """
         self.store = StoreService.get_store(store_id)
-        self.data_page = PageDataService.get_page_data(data_page_id)
+        self.page = PageService.get_page(page_id)
+        self.page_data = PageDataService.get_page_data(page_data_id)
+        self.page_data_confs = self.page_data.page_data_confs
+        self.page_data_columns = self.page_data.page_data_columns
+        self.db = db
         self.port = port
+        self.cache_path = cache_path
         self.web_driver = None
-        self.source_data = None
-        self.data = None
-        self.file = None
         self.error = None
-        self.default_field = default_field
-        self.url = None
 
     def get_webdriver(self):
         """
