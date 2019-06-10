@@ -1,8 +1,7 @@
 from handle.website.base import Base
 from handle.err_message import ErrorEnum
-from handle.common.logging import logging
+from handle.common import logging
 from handle.common import time
-from handle.common.db import DB
 from retry import retry
 import pandas as pd
 import re
@@ -32,16 +31,8 @@ class SpreadReport(Base):
         self.web_driver.find_element_in_xpath('').click()
 
     def _operator_point_control(self):
-        """   """
-        self.web_driver.find_element_in_xpath('').pop().click() # 取消已有勾选框
-        self.web_driver.find_element_in_xpath('').pop().click()
-        self.web_driver.find_element_in_xpath('').click() # 点击需要勾选的条件
-        self.web_driver.find_element_in_xpath('').click()
-        self.web_driver.find_element_in_xpath('').click() # 点击确定使条件生效
-        # self.web_driver.find_element_in_xpath('').pop().click()
-        # self.web_driver.find_element_in_xpath('').pop().click()
-        # self.web_driver.find_element_in_xpath('').click()
-        # self.web_driver.find_element_in_xpath('').click()
+        """指标条件筛选"""
+        pass
 
     def _locate_page(self):
         """
@@ -93,10 +84,16 @@ class SpreadReportDay(SpreadReport):
         df = pd.read_csv(cache_file_path)
         if df.shape[0] <= 0 or df.shape[1] <= 0:  # 需要判断表格中是否存在业务数据
             print('下载的文件为空文件')
+        df.rename(columns={'日期': '_日期'}, inplace=True)  # 将原始的日期字段名更改
         # 添加默认字段并赋值
-        df = pd.concat([df, pd.DataFrame(columns=self.FIELD_NAME)], sort=False)
-        df['店铺id'] = self.store_id
-        df['店铺名'] = self.store_name
+        df = pd.concat([df, pd.DataFrame(columns=self.default_field)], sort=False)
+        df['店铺id'] = self.store.id
+        df['店铺名'] = self.store.store_name
+        df['日期'] = df['_日期']
+        df['文件路径'] = self.store_name
+        df['文件sheet'] = cache_file_name
+        df['转化周期'] = '15天累计数据'
+        df['报表类型'] = '宝贝'
         df['入库时间'] = time.get_current_timestamp()
         df['取数时间'] = time.get_current_timestamp()
         cols_name = df.columns.tolist()
@@ -126,17 +123,16 @@ class SpreadReportDay(SpreadReport):
         col_cnt = df.shape[1]  # 取出data_frame列数
         data_list = list(df.itertuples(index=False, name=None)) # 将data_frame每一行转化为元组放入列表中
         insert_sql = "insert into {} {} values (%s{})".format(self.table_name, field_tuple, ',%s'*(col_cnt-1))
-        conn = DB.create_conn()
-        conn.cursor().executemany(insert_sql, data_list)
-        conn.commit()
+        self.db(insert_sql, data_list)
+        self.db.commit()
 
-    def run(self):
-        self.get_webdriver()
-        self._locate_page()
-        self.operation_page()
-        field_tuple, df = self.operation_data_process()
-        self.operation_data_input(field_tuple, df)
-        self.operation_data_backup()
+    # def run(self):
+    #     self.get_webdriver()
+    #     self._locate_page()
+    #     self.operation_page()
+    #     field_tuple, df = self.operation_data_process()
+    #     self.operation_data_input(field_tuple, df)
+    #     self.operation_data_backup()
 
 
 

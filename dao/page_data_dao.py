@@ -107,7 +107,7 @@ class PageDataDao:
         self.created = None
         self.updated = None
         self.page_data_columns = []
-        self.page_info = None
+        self.page = None
         self.page_data_confs = []
         self._init_by_id(page_data_id)
 
@@ -127,7 +127,7 @@ class PageDataDao:
         else:
             print('未找到page_data_id 对应实例,page_data_id:', page_data_id)
             raise Exception
-        self.page_info = PageDao(self.page_id)
+        self.page = PageDao(self.page_id)
         rows = DB.query('select id, page_data_id, col_name, col_type, col_description, check_col_name, col_name, is_file_column, is_primary_key, is_data_maintenance, created, updated  from t_page_data_column where id = ' + page_data_id + ';')
         for row in rows:
             self.page_data_columns.append(PageDataColumnDao(row))

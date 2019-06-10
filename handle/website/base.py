@@ -1,4 +1,4 @@
-from handle.common.db import DB
+from common.db import DB
 from handle.err_message import ErrorEnum
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -14,24 +14,25 @@ from service.page_data_service import PageService
 
 
 class Base:
-    def __init__(self, store_id, page_id, page_data_id, db, port, cache_path):
+    def __init__(self, store_id, page_data_id, port):
         """
         初始化爬虫任务所需的信息
         :param store_id: 店铺id,用来获取店铺对象
-        :param page_id: 抓取的页面id,用来获取页面对象
         :param page_data_id: 抓取的页面数据块id,用来获取页面数据块对象
-        :param db: 数据库对象
         :param port: 已开启的浏览器服务端口
-        :param cache_path: 浏览器文件下载缓存目录路径
         """
         self.store = StoreService.get_store(store_id)
-        self.page = PageService.get_page(page_id)
         self.page_data = PageDataService.get_page_data(page_data_id)
+        self.page = self.page_data.page
         self.page_data_confs = self.page_data.page_data_confs
         self.page_data_columns = self.page_data.page_data_columns
-        self.db = db
+        self.default_field = []
+        for x in self.page_data_columns:
+            if x.is_file_column == 'Y':
+                self.default_field.append(x.col_name)
+        self.db = DB(host='localhost', user='root', passwd='123456', db_name='rpa_monitor')
         self.port = port
-        self.cache_path = cache_path
+        self.cache_path = 'C:/RPA DATA/download/'
         self.web_driver = None
         self.error = None
 
@@ -49,7 +50,7 @@ class Base:
             return False
         return True
 
-    def wait_download(self, cache_path):
+    def wait_download(self):
         """
         等待文件下载
         :param cache_path:
@@ -62,10 +63,10 @@ class Base:
             ind = ind + 1
             atton = False
             file_cnt = 0
-            dirs = os.listdir(cache_path)
+            dirs = os.listdir(self.cache_path)
             for filename in dirs:
                 print(ind, 'wait_download file:', filename)
-                if os.path.isfile(cache_path + filename):
+                if os.path.isfile(self.cache_path + filename):
                     file_cnt = file_cnt + 1
                     if '.crdownload' in filename or '.tmp' in filename:
                         atton = True
@@ -75,30 +76,30 @@ class Base:
                 time.sleep(2)
         return atton
 
-    def is_download_finish(self, cache_path):
+    def is_download_finish(self):
         """
         判断文件是否下载完成
         :param cache_path: <class 'str'> 缓存路径
         :return:文件名和文件路径
         """
-        self.wait_download(cache_path)
-        print('wait_download:', cache_path, ' ok!')
+        self.wait_download(self.cache_path)
+        print('wait_download:', self.cache_path, ' ok!')
         time.sleep(0.2)
-        ls = os.listdir(cache_path)
+        ls = os.listdir(self.cache_path)
         length = 0
         for i in ls:
-            if os.path.isfile(os.path.join(cache_path, i)):
+            if os.path.isfile(os.path.join(self.cache_path, i)):
                 cache_file_name = i
-                cache_file_path = os.path.join(cache_path, i)
+                cache_file_path = os.path.join(self.cache_path, i)
                 length = length + 1
         print(ls)
         if len == 1 and '计划日' in cache_file_name:
             # 如果下载的文件为压缩文件,先进行解压,再将压缩包移入备份目录中,只保留解压出的文件
             if re.search(r'\.([^\.]*?)$', cache_file_path).group(1) == 'zip':
-                status = self.wait_unzip_finish(cache_path, cache_file_path)
+                status = self.wait_unzip_finish(self.cache_path, cache_file_path)
                 if status:
                     if self.operation_data_backup(cache_file_path):
-                        cache_file_path = os.listdir(cache_path)[0]
+                        cache_file_path = os.listdir(self.cache_path)[0]
                         return cache_file_name, cache_file_path
             return cache_file_name, cache_file_path
         elif len == 0:
@@ -132,7 +133,7 @@ class Base:
         目前只针对下载文件 进行数据备份
         :return: True/False
         """
-        backup_dir = 'D:/' + self.data + '/' + self.port  # 目录规则:平台名-菜单名-页面名-模块名-报表类型
+        backup_dir = 'C:/RPA DATA/' + self.data + '/' + self.port  # 目录规则:平台名-菜单名-页面名-模块名-报表类型
         if os.path.exists(backup_dir):
             print('该目录已存在')
         else:
