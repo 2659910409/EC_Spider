@@ -50,11 +50,11 @@ class SpreadReport(Base):
         :return: True/False
         """
         try:
-            self.web_driver.get(self.url) # 第一次请求到达平台默认页
-            self.web_driver.close(self.url)
-            self.web_driver.get(self.url)  # 第二次请求是为了到达指定的爬虫页
+            self.web_driver.get(self.page.url)  # 第一次请求到达平台默认页
+            self.web_driver.close(self.page.url)
+            self.web_driver.get(self.page.url)  # 第二次请求是为了到达指定的爬虫页
         except Exception as e:
-            print(e, '请求失败,请检查传入的url是否有效:{}'.format(self.url))
+            print(e, '请求失败,请检查传入的url是否有效:{}'.format(self.page.url))
             return False
         return True
 
@@ -67,7 +67,7 @@ class SpreadReportDay(SpreadReport):
         """
         start_date = time.get_last_month_date(time.get_current_date())[0]
         end_date = time.date_add(time.get_current_date(), -1)
-        period = '15天累计转化周期'
+        period = 15
         # 多条件筛选
         self._operator_period_control(period)
         self._operator_time_control(start_date, end_date)
@@ -83,14 +83,9 @@ class SpreadReportDay(SpreadReport):
         :return: data_frame
         """
         # 从数据库读取目标表的所有字段名
-        Db_object = DB()
-        # db_conn, db_cur = Db_object.db_conn, Db_object.db_cur
-        field_name = Db_object.query(
-            "select column_name from information_schema.columns where table_name = {} and table_schema = {};").format(
-            self.table_name, self.db_name)
         field_name_list = []
-        for x in field_name:
-            field_name_list.append(x[0])
+        for x in self.page_data_columns:
+            field_name_list.append(x.check_col_name)
         field_name_list.sort(reverse=True)
         field_tuple = tuple(field_name_list)
         # 读取文件并解析
