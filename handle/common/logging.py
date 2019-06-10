@@ -1,6 +1,6 @@
 
 
-class logging:
+class Logging:
     def warning(s):
         print(s)
 
