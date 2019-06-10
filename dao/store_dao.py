@@ -1,6 +1,7 @@
 from common.db import DB
 
 
+# TODO 补全增加、删除操作
 class StoreDAO:
     def __init__(self, store_id):
         self.id = None
@@ -27,18 +28,6 @@ class StoreDAO:
         else:
             print('未找到store_id对应实例,store_id:', store_id)
             raise Exception
-
-    def _init_by_name(self, store_name):
-        pass
-
-    def save(self, store_name):
-        _id = DB.insert('insert into t_store(store_name) values(\'+store_name+\');')
-        if _id is not None:
-            self.id = _id
-            self.store_name = store_name
-
-    def increase_store(self, store_name):
-        pass
 
 
 class StorePropertyDAO:

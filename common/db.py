@@ -1,9 +1,10 @@
 import pymssql
+import setting
 
 
 class DB:
-    def __init__(self, host, user, passwd, db_name, port=3306, charset='utf-8'):
-        self.host = host
+    def __init__(self):
+        self.host = setting.database_data_host
         self.user = user
         self.passwd = passwd
         self.port = port

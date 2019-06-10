@@ -1,4 +1,5 @@
 from common.db import DB
+from common.logging import Logging
 
 
 class PageDao:
@@ -24,43 +25,25 @@ class PageDao:
             self.created = rows[0][6]
             self.updated = rows[0][7]
         else:
-            print('未找到page_id 对应实例，page_id:', page_id)
+            Logging.error('未找到page_id 对应实例，page_id:' + page_id)
             raise Exception
 
 
 class PageDataColumnDao:
-    def __init__(self, page_data_column_id):
-        self.id = page_data_column_id
-        self.page_data_id = None
-        self.col_name = None
-        self.col_type = None
-        self.col_description = None
-        self.check_col_name = None
-        self.col_name = None
-        self.is_file_column = None
-        self.is_primary_key = None
-        self.is_data_maintenance = None
-        self.created = None
-        self.updated = None
-        self._init_by_id(page_data_column_id)
-
-    def _init_by_id(self, page_data_column_id):
-        rows = DB.query('select id, page_data_id, col_name, col_type, col_description, check_col_name, col_name, is_file_column, is_primary_key, is_data_maintenance, created, updated  from t_page_data_column where id = ' + page_data_column_id + ';')
-        if len(rows) == 1:
-            self.page_data_id = rows[0][1]
-            self.col_name = rows[0][2]
-            self.col_type = rows[0][3]
-            self.col_description = rows[0][4]
-            self.check_col_name = rows[0][5]
-            self.col_name = rows[0][6]
-            self.is_file_column = rows[0][7]
-            self.is_primary_key = rows[0][8]
-            self.is_data_maintenance = rows[0][9]
-            self.created = rows[0][10]
-            self.updated = rows[0][11]
-        else:
-            print('未找到page_data_column_id对应实例,page_data_column_id:', page_data_column_id)
-            raise Exception
+    def __init__(self, row):
+        self.id = row[0]
+        self.page_data_id = row[1]
+        self.col_name = row[2]
+        self.col_type = row[3]
+        self.col_description = row[4]
+        self.check_col_name = row[5]
+        self.col_name = row[6]
+        self.is_file_column = row[7]
+        self.is_primary_key = row[8]
+        self.is_data_maintenance = row[9]
+        self.created = row[10]
+        self.updated = row[11]
+        self.is_exists_file = False
 
 
 class PageDataConfDao:
@@ -106,8 +89,8 @@ class PageDataDao:
         self.data_update_time = None
         self.created = None
         self.updated = None
-        self.page_data_columns = []
         self.page = None
+        self.page_data_columns = []
         self.page_data_confs = []
         self._init_by_id(page_data_id)
 
@@ -125,15 +108,12 @@ class PageDataDao:
             self.created = rows[0][9]
             self.updated = rows[0][10]
         else:
-            print('未找到page_data_id 对应实例,page_data_id:', page_data_id)
+            Logging.error('未找到page_data_id 对应实例,page_data_id:' + page_data_id)
             raise Exception
         self.page = PageDao(self.page_id)
         rows = DB.query('select id, page_data_id, col_name, col_type, col_description, check_col_name, col_name, is_file_column, is_primary_key, is_data_maintenance, created, updated  from t_page_data_column where id = ' + page_data_id + ';')
         for row in rows:
             self.page_data_columns.append(PageDataColumnDao(row))
-        rows = DB.query('select p_type, p_key, p_value, p_description from t_page_data_conf where page_data_id = \''+page_data_id+'\';')
+        rows = DB.query('select id, p_type, p_key, p_value, p_description from t_page_data_conf where page_data_id = \''+page_data_id+'\';')
         for row in rows:
             self.page_data_confs.append(PageDataConfDao(row))
-
-    def _init_by_name(self, store_name):
-        pass

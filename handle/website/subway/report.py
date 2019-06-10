@@ -68,7 +68,6 @@ class SubReport(Base):
         pass
 
     def operation_data_process(self):
-
         return True
 
     def operation_data_input(self):

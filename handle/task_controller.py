@@ -21,10 +21,10 @@ class TaskController:
     def get_obj(self):
         return self.obj
 
-    def is_error(self):
+    def is_success(self):
         if self.error is None:
-            return False
-        return True
+            return True
+        return False
 
     def run(self, func):
         """

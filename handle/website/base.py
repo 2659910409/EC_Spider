@@ -1,5 +1,6 @@
 from common.db import DB
 from handle.err_message import ErrorEnum
+from handle.common.logging import Logging
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from handle.common import time
@@ -11,12 +12,16 @@ from timeout3 import timeout
 from service.store_service import StoreService
 from service.page_data_service import PageDataService
 from service.page_data_service import PageService
-
+import setting
 
 class Base:
     def __init__(self, store_id, page_data_id, port):
         """
         初始化爬虫任务所需的信息
+        1.实例化对象：Store、PageData、Table
+        2.环境初始化
+        3.web_driver 连接确认
+        4.web_driver 店铺LOGIN确认
         :param store_id: 店铺id,用来获取店铺对象
         :param page_data_id: 抓取的页面数据块id,用来获取页面数据块对象
         :param port: 已开启的浏览器服务端口
@@ -24,17 +29,70 @@ class Base:
         self.store = StoreService.get_store(store_id)
         self.page_data = PageDataService.get_page_data(page_data_id)
         self.page = self.page_data.page
-        self.page_data_confs = self.page_data.page_data_confs
-        self.page_data_columns = self.page_data.page_data_columns
-        self.default_field = []
-        for x in self.page_data_columns:
-            if x.is_file_column == 'Y':
-                self.default_field.append(x.col_name)
-        self.db = DB(host='localhost', user='root', passwd='123456', db_name='rpa_monitor')
+        self.db = DB()
         self.port = port
-        self.cache_path = 'C:/RPA DATA/download/'
+        self.cache_path = setting.DATA_ROOT_PATH
         self.web_driver = None
         self.error = None
+        self.file = None
+        self.source_data = None
+        self.data = None
+
+    def operation_page(self):
+        """
+        页面操作含取数
+        :return: True/False
+        """
+        self.source_data = None
+        return True
+
+    def operation_page_download(self):
+        """
+        文件下载及下载文件管理
+        1）是否有文件下载
+        2）文件是否下载完成
+        3）文件下载完成后迁移
+        4）读取文件内容返回数据
+        :return: True/False
+        """
+        self.file = None
+        self.source_data = None
+        return True
+
+    def operation_data_process(self):
+        """
+        数据处理
+        1） 数据格式转换
+        2） 数据列类型转换
+        :return: True/False
+        """
+        self.data = self.source_data
+        return True
+
+    def operation_data_input(self):
+        """
+        数据入库
+        :return: True/False
+        """
+        DB.input_batch(self.data)
+        return True
+
+    def operation_data_backup(self, cache_file_path):
+        """
+        目前只针对下载文件 进行数据备份
+        :return: True/False
+        """
+        # TODO 根路径引用
+        backup_dir = 'C:/RPA DATA/' + self.data + '/' + self.port  # 目录规则:平台名-菜单名-页面名-模块名-报表类型
+        if not os.path.exists(backup_dir):
+            os.makedirs(backup_dir)
+        shutil.move(cache_file_path, self.backup_dir)
+        return True
+
+    def is_success(self):
+        if self.error is None:
+            return True
+        return False
 
     def get_webdriver(self):
         """
@@ -46,9 +104,8 @@ class Base:
             chrome_options.add_experimental_option("debuggerAddress", "127.0.0.1:{}".format(self.port))
             self.web_driver = webdriver.Chrome(chrome_options=chrome_options)
         except Exception as e:
-            print('无法接管端口为{}的浏览器'.format(self.port))
-            return False
-        return True
+            Logging('无法接管端口为{}的浏览器'.format(self.port))
+            self.error = ErrorEnum.ERROR_1000
 
     def wait_download(self):
         """
@@ -127,17 +184,3 @@ class Base:
         else:
             print('解压出多个文件')
         return symbol
-
-    def operation_data_backup(self, cache_file_path):
-        """
-        目前只针对下载文件 进行数据备份
-        :return: True/False
-        """
-        backup_dir = 'C:/RPA DATA/' + self.data + '/' + self.port  # 目录规则:平台名-菜单名-页面名-模块名-报表类型
-        if os.path.exists(backup_dir):
-            print('该目录已存在')
-        else:
-            os.makedirs(backup_dir)
-        shutil.move(cache_file_path, self.backup_dir)
-        return True
-

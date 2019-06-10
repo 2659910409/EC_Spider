@@ -56,7 +56,18 @@ def string_to_date(string, fmt):
     return date
 
 
+def get_day_report_rule1():
+    """
 
-
+    :return:
+    """
+    # if 15号或之前
+    # start_date = 上月1号
+    # else 15号之前
+    # start_date = 本月1号
+    start_date = None
+    # 当天
+    end_date = None
+    return start_date, end_date
 
 
