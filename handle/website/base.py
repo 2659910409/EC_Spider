@@ -13,7 +13,7 @@ from service.page_data_service import PageDataService
 
 
 class Base:
-    def __init__(self, store_id, data_page_id, port):
+    def __init__(self, store_id, page_id, page_data_id, port, cache_path):
         """
         初始化爬虫任务所需的任务信息
         :param data_page:
@@ -21,15 +21,14 @@ class Base:
         :param default_field: 默认添加的字段的值列表
         """
         self.store = StoreService.get_store(store_id)
-        self.data_page = PageDataService.get_page_data(data_page_id)
+        self.page = PageService(page_id)
+        self.page_data = PageDataService.get_page_data(page_data_id)
+        self.page_data_confs = self.page_data.page_data_confs
+        self.page_data_columns = self.page_data.page_data_columns
         self.port = port
+        self.cache_path = cache_path
         self.web_driver = None
-        self.source_data = None
-        self.data = None
-        self.file = None
         self.error = None
-        self.default_field = default_field
-        self.url = None
 
     def get_webdriver(self):
         """

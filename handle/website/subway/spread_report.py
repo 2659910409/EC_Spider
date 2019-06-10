@@ -7,6 +7,7 @@ from retry import retry
 import pandas as pd
 import re
 
+
 class SpreadReport(Base):
     def _operator_time_control(self, start_date=None, end_date=None):
         """
@@ -66,8 +67,9 @@ class SpreadReportDay(SpreadReport):
         """
         start_date = time.get_last_month_date(time.get_current_date())[0]
         end_date = time.date_add(time.get_current_date(), -1)
+        period = '15天累计转化周期'
         # 多条件筛选
-        self._operator_period_control(self.period)
+        self._operator_period_control(period)
         self._operator_time_control(start_date, end_date)
         self._operator_point_control()
         # 取数
@@ -81,11 +83,11 @@ class SpreadReportDay(SpreadReport):
         :return: data_frame
         """
         # 从数据库读取目标表的所有字段名
-        db_conn, db_cur = DB.create_conn()
-        db_cur.execute(
+        Db_object = DB()
+        # db_conn, db_cur = Db_object.db_conn, Db_object.db_cur
+        field_name = Db_object.query(
             "select column_name from information_schema.columns where table_name = {} and table_schema = {};").format(
             self.table_name, self.db_name)
-        field_name = db_cur.fetchall()
         field_name_list = []
         for x in field_name:
             field_name_list.append(x[0])
@@ -126,7 +128,7 @@ class SpreadReportDay(SpreadReport):
         :return: True/False
         """
         # row_cnt = df.shape[0]
-        col_cnt = df.shape[1] # 取出data_frame列数
+        col_cnt = df.shape[1]  # 取出data_frame列数
         data_list = list(df.itertuples(index=False, name=None)) # 将data_frame每一行转化为元组放入列表中
         insert_sql = "insert into {} {} values (%s{})".format(self.table_name, field_tuple, ',%s'*(col_cnt-1))
         conn = DB.create_conn()
@@ -136,8 +138,11 @@ class SpreadReportDay(SpreadReport):
     def run(self):
         self.get_webdriver()
         self._locate_page()
+        self.operation_page()
+        field_tuple, df = self.operation_data_process()
+        self.operation_data_input(field_tuple, df)
+        self.operation_data_backup()
 
-        pass
 
 
 class SpreadReportMonth(SpreadReport):

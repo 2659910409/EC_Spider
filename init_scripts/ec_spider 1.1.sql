@@ -103,9 +103,9 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `rpa_monitor`.`t_task_queue`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `rpa_monitor`.`t_task_queue` (
-)
-ENGINE = InnoDB;
+-- CREATE TABLE IF NOT EXISTS `rpa_monitor`.`t_task_queue` (
+-- )
+-- ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
