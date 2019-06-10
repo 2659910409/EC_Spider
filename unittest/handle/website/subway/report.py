@@ -6,6 +6,7 @@ from handle.website.subway.report import SubReport
 #     return queue.pop(0)
 
 if __name__ == '__main__':
+
     subreport = SubReport('皇家美素佳儿旗舰店', '123', 9001)
     subreport.get_webdriver()
     subreport.web_driver
