@@ -1,5 +1,6 @@
 import time
 import datetime
+from dateutil.relativedelta import relativedelta
 
 
 # 睡眠时间，单位秒
@@ -17,14 +18,19 @@ def get_current_timestamp():
     return current_timestamp
 
 
-def date_add(date, day_num):
+def add_day(date, days):
     """
     :param date: 需要做加减的日期
     :param day_num: 加减的天数,为正值代表加上相应的天数,为负值则代表减去相应天数
     :return: 结果日期,为YYYY-MM-DD格式
     """
-    result_date = date + datetime.timedelta(days=day_num)
+    result_date = date + datetime.timedelta(days=days)
     return result_date
+
+
+def add_month(date, months):
+    date = date + relativedelta(months=months)
+    return date
 
 
 def get_last_month_date(date):
@@ -33,7 +39,7 @@ def get_last_month_date(date):
     :return: 指定日期的前一个月的开始日期与结束日期
     """
     start_date = date.replace(day=1).replace(month=date.month-1)
-    end_date = date_add(date.replace(day=1), -1)
+    end_date = add_day(date.replace(day=1), -1)
     return start_date, end_date
 
 
@@ -56,18 +62,25 @@ def string_to_date(string, fmt):
     return date
 
 
-def get_day_report_rule1():
+def get_day_report_rule(date):
     """
-
-    :return:
+    获取日报的开始日期和结束日期
+    :return:当前日期前一个月份的开始日期与当前日期
     """
-    # if 15号或之前
-    # start_date = 上月1号
-    # else 15号之前
-    # start_date = 本月1号
-    start_date = None
-    # 当天
-    end_date = None
+    if date.day <= 15:
+        start_date = add_month(date, -1).replace(day=1)
+    if date.day > 15:
+        start_date = date.replace(day=1)
+    end_date = date
     return start_date, end_date
 
+
+def get_month_report_rule(date):
+    """
+    获取月报的开始日期与结束日期
+    :return:当前日期前一个月份的开始日期与结束日期
+    """
+    start_date = add_month(date, -1).replace(day=1)
+    end_date = add_day(date.replace(day=1), -1)
+    return start_date, end_date
 

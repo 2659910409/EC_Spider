@@ -6,7 +6,7 @@ from dao.store_dao import StorePropertyDAO
 class StoreService:
     def get_store(self, store_id):
         store = StoreDAO()
-        rows = DB.query('select id, name, plt_name, plt_store_id, login_username, status, url, created, updated from t_store where store_id = {}'.format(store_id))
+
         if len(rows) == 1:
             store.id = rows[0][0]
             store.name = rows[0][1]

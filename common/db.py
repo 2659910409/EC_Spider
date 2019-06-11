@@ -19,9 +19,14 @@ class DB:
                                        database=self.db_name, charset=self.charset)
         self.db_cur = self.db_conn.cursor()
 
-    def query(self, sql):
+    def query_fetchall(self, sql):
         self.db_cur.execute(sql)
         data = self.db_cur.fetchall()
+        return data
+
+    def query_fetchone(self, sql):
+        self.db_cur.execute(sql)
+        data = self.db_cur.fetchone()
         return data
 
     def insert(self, sql):
