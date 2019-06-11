@@ -1,5 +1,5 @@
 from common.db import DB
-from domain.store import Store, StoreProperty
+from entity.store import Store, StoreProperty
 
 
 class StoreDao:
