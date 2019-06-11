@@ -1,5 +1,6 @@
 from handle.common.logging import Logging
 
+
 class TaskCreator:
     def __init__(self):
         pass

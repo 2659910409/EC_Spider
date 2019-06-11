@@ -53,7 +53,8 @@ class ErrorEnum(Enum):
     ERROR_9002 = ErrorMsg('9002', '未匹配到任务func')
     # 取数-初始化任务 1000-1999
     ERROR_1000 = ErrorMsg('1000', '未知异常')
-    ERROR_1001 = ErrorMsg('1001', '店铺实例未找到')
+    ERROR_1001 = ErrorMsg('1001', '店铺未登录')
+    ERROR_1002 = ErrorMsg('1002', '店铺实例未找到')
     # TODO 其他异常整理
     # 取数-登录操作 2000-2999
     ERROR_2000 = ErrorMsg('2000', '未知异常')

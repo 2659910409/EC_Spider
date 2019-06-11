@@ -3,7 +3,7 @@ from handle.err_message import ErrorEnum
 
 
 class TaskController:
-    def __init__(self, name, param):
+    def __init__(self, name, param={}):
         """
         对象/任务实例化
         :param name: 对象标识，规则：从目录至最终对象，handle.xxx.Obj
@@ -33,9 +33,9 @@ class TaskController:
         :return:
         """
         if self.name == 'handle.task_creator.TaskCreator' and func == 'task_init':
-            self.obj.task_init()
+            return self.obj.task_init()
         elif self.name == 'handle.task_creator.TaskCreator' and func == 'task_added':
-            self.obj.task_added()
+            return self.obj.task_added()
         else:
             self.error = ErrorEnum.ERROR_9002
             self.error.value.set_msg(('未匹配到任务func name:'+self.name+',func:'+func))

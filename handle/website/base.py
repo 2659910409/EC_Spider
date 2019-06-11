@@ -14,6 +14,7 @@ from service.page_data_service import PageDataService
 from service.page_data_service import PageService
 import setting
 
+
 class Base:
     def __init__(self, store_id, page_data_id, port):
         """
