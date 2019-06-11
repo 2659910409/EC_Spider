@@ -95,6 +95,12 @@ class Base:
             return True
         return False
 
+    def get_error(self):
+        return self.error.value
+
+    def set_error_msg(self, msg):
+        self.error.value.set_msg(msg)
+
     def get_webdriver(self):
         """
         根据端口获取浏览器
