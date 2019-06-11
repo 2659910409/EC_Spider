@@ -54,7 +54,7 @@ class SpreadReport(Base):
 class SpreadReportDay(SpreadReport):
     def operation_page(self):
         """
-        报表条件筛选并下载报表
+        报表条件筛选
         """
         try:
             start_date, end_date = time.get_day_report_rule1()
@@ -72,6 +72,16 @@ class SpreadReportDay(SpreadReport):
             return False
         return True
 
+    def operation_page_down(self):
+        """
+        下载报表,并读取数据
+        """
+        # 读取文件并解析
+        cache_file_name, cache_file_path = self.is_download_finish()
+        df = pd.read_csv(cache_file_path)
+        if df.shape[0] <= 0 or df.shape[1] <= 0:  # 需要判断表格中是否存在业务数据
+            print('下载的文件为空文件')
+
     def operation_data_process(self):
         """
         等待文件下载完成并解析文件数据
@@ -84,11 +94,7 @@ class SpreadReportDay(SpreadReport):
                 field_name_list.append(x.check_col_name)
             field_name_list.sort(reverse=True)
             field_tuple = tuple(field_name_list)
-            # 读取文件并解析
-            cache_file_name, cache_file_path = self.is_download_finish()
-            df = pd.read_csv(cache_file_path)
-            if df.shape[0] <= 0 or df.shape[1] <= 0:  # 需要判断表格中是否存在业务数据
-                print('下载的文件为空文件')
+
             self.page_data = PageDataService.set_file_column_flag(self.page_data, df.columns)
             df.rename(columns={'日期': '_日期'}, inplace=True)  # 将原始的日期字段名更改
             # 添加默认字段并赋值

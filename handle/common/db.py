@@ -5,11 +5,11 @@ import setting
 class DB:
     def __init__(self):
         self.host = setting.database_data_host
-        self.user = setting.database_system_user
-        self.passwd = setting.database_system_passwd
-        self.port = setting.database_system_port
-        self.db_name = setting.database_system_db_name
-        self.charset = setting.database_system_charset
+        self.user = setting.database_data_user
+        self.passwd = setting.database_data_passwd
+        self.port = setting.database_data_port
+        self.db_name = setting.database_data_db_name
+        self.charset = setting.database_data_charset
         self.db_conn = None
         self.db_cur = None
         self._create_conn()

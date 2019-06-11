@@ -47,33 +47,15 @@ class PageDataColumnDao:
 
 
 class PageDataConfDao:
-    def __init__(self, page_data_conf_id):
-        self.id = page_data_conf_id
-        self.page_data_id = None
-        self.p_type = None
-        self.p_key = None
-        self.p_value = None
-        self.p_description = None
-        self.created = None
-        self.updated = None
-        self._init_by_id(page_data_conf_id)
-
-    def _init_by_id(self, page_data_conf_id):
-        rows = DB.query('select id, page_data_id, p_type, p_key, p_value, p_description, created, updated from t_page_data_conf where page_data_conf_id = \''+page_data_conf_id+'\';')
-        if len(rows) == 1:
-            self.page_id = rows[0][1]
-            self.data_name = rows[0][2]
-            self.table_name = rows[0][3]
-            self.data_business_columns = rows[0][4]
-            self.data_pre_cnt = rows[0][5]
-            self.data_source_type = rows[0][6]
-            self.data_update_freq = rows[0][7]
-            self.data_update_time = rows[0][8]
-            self.created = rows[0][9]
-            self.updated = rows[0][10]
-        else:
-            print('page_data_conf_id对应实例,page_data_conf_id:', page_data_conf_id)
-            raise Exception
+    def __init__(self, row):
+        self.id = row[0]
+        self.page_data_id = row[1]
+        self.p_type = row[2]
+        self.p_key = row[3]
+        self.p_value = row[4]
+        self.p_description = row[5]
+        self.created = row[6]
+        self.updated = row[7]
 
 
 class PageDataDao:
