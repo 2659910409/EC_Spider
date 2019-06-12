@@ -1,6 +1,6 @@
 
 class StoreEntity:
-    def __init__(self, id, name, plt_name, plt_store_id, login_username, url, status, created, updated):
+    def __init__(self, id, name, plt_name, plt_store_id, login_username, url, status, created, updated, property_entity):
         self.id = id
         self.name = name
         self.plt_name = plt_name
@@ -10,6 +10,7 @@ class StoreEntity:
         self.url = url
         self.created = created
         self.updated = updated
+        self.properties = property_entity
 
 
 class StorePropertyEntity:

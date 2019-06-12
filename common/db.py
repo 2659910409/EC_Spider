@@ -31,6 +31,8 @@ class DB:
 
     def insert(self, sql):
         self.db_cur.execute(sql)
+        id = int(self.db_cur.insert_id())
+        return id
 
     def insert_many(self, sql, data_list):
         self.db_cur.executemany(sql, data_list)

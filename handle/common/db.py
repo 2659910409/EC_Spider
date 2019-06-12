@@ -1,23 +1,24 @@
-import pymssql
+# import pymssql
+import pymysql
+from DBUtils.PooledDB import PooledDB
 import setting
 
 
 class DB:
-    def __init__(self):
-        self.host = setting.database_data_host
-        self.user = setting.database_data_user
-        self.passwd = setting.database_data_passwd
-        self.port = setting.database_data_port
-        self.db_name = setting.database_data_db_name
-        self.charset = setting.database_data_charset
-        self.db_conn = None
-        self.db_cur = None
-        self._create_conn()
+    __pool = None  # 连接对象
 
-    def _create_conn(self):
-        self.db_conn = pymssql.connect(server=self.host, port=self.port, user=self.user, password=self.passwd,
-                                       database=self.db_name, charset=self.charset)
-        self.db_cur = self.db_conn.cursor()
+    def __init__(self):
+        self.db_conn = DB.__getConn()
+        self.db_cur = self.coon.cursor(cursor=pymysql.cursors.DictCursor)
+
+    @staticmethod
+    def __get_conn():
+        if DB.__pool is None:
+            __pool = PooledDB(creator=pymysql, host=setting.database_data_host, mincached=1, maxcached=20,
+                              port=setting.database_data_port, user=setting.database_data_user,
+                              passwd=setting.database_data_passwd, db=setting.database_data_db_name,
+                              charset=setting.database_data_charset)
+        return __pool.connection()
 
     def query(self, sql):
         self.db_cur.execute(sql)
@@ -26,6 +27,8 @@ class DB:
 
     def insert(self, sql):
         self.db_cur.execute(sql)
+        id = int(self.db_cur.insert_id())
+        return id
 
     def insert_many(self, sql, data_list):
         self.db_cur.executemany(sql, data_list)
@@ -58,3 +61,29 @@ class DB:
     def input_batch(self, datas):
         """"""
         pass
+
+    def begin(self):
+        """
+        开启事务
+        """
+        self._conn.autocommit(0)
+
+    def end(self, option='commit'):
+        """
+        结束事务
+        """
+        if option == 'commit':
+            self._conn.commit()
+        else:
+            self._conn.rollback()
+
+    def dispose(self, isend=1):
+        """
+        释放连接池资源
+        """
+        if isend == 1:
+            self.end('commit')
+        else:
+            self.end('rollback')
+        self._cursor.close()
+        self._conn.close()

@@ -12,16 +12,8 @@ class StoreService:
         """
         data = StoreDao.query_by_id(store_id)
         if data:
-            id = data[0]
-            name = data[1]
-            plt_name = data[2]
-            plt_store_id = data[3]
-            login_username = data[4]
-            url = data[5]
-            status = data[6]
-            created = data[7]
-            updated = data[8]
-            store = StoreEntity(id, name, plt_name, plt_store_id, login_username, url, status, created, updated)
+            property_entity = self.get_store_properties(store_id)
+            store = StoreEntity(data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], property_entity)
             return store
         else:
             print('店铺id不存在:', store_id)
@@ -49,15 +41,7 @@ class StoreService:
         if data:
             store_properties = []
             for row in data:
-                id = row[0]
-                store_id = row[1]
-                p_type = row[2]
-                p_key = row[3]
-                p_value = row[4]
-                p_description = row[5]
-                created = row[6]
-                updated = row[7]
-                store_properties.append(StorePropertyEntity(id, store_id, p_type, p_key, p_value, p_description, created, updated))
+                store_properties.append(StorePropertyEntity(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
             return store_properties
         else:
             print('该店铺id不存在:', store_id)
