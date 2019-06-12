@@ -21,6 +21,7 @@ class StoreService:
             status = data[6]
             created = data[7]
             updated = data[8]
+
             store = StoreEntity(id, name, plt_name, plt_store_id, login_username, url, status, created, updated)
             return store
         else:

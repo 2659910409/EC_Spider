@@ -1,6 +1,6 @@
 from handle.website.base import Base
 from handle.err_message import ErrorEnum
-from handle.common import logging
+from handle.common import private_logging
 from handle.common import time
 from handle.common import db
 from retry import retry

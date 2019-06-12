@@ -1,6 +1,6 @@
 from common.db import DB
 from handle.err_message import ErrorEnum
-from handle.common.logging import Logging
+from handle.common.private_logging import Logging
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from handle.common import time

@@ -1,4 +1,4 @@
-from handle.common.logging import Logging
+from handle.common.private_logging import Logging
 from handle.err_message import ErrorEnum
 from handle.task_controller import TaskController
 from handle.task_parameters import TaskParameters
@@ -14,6 +14,11 @@ def worker_task_init():
 def worker_task_added():
     tc = TaskController('handle.task_creator.TaskCreator')
     tc.run('task_added')
+
+
+def worker_task_finish():
+    tc = TaskController('handle.task_creator.TaskCreator')
+    tc.run('task_finish')
 
 
 # step0.3:Worker:任务获取
@@ -51,3 +56,4 @@ if __name__ == '__main__':
     # 增量初始化任务执行
     worker_task_added()
     worker_task_run()
+    worker_task_finish()
