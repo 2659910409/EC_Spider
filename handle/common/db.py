@@ -8,17 +8,17 @@ class DB:
     __pool = None  # 连接对象
 
     def __init__(self):
-        self.db_conn = DB.__getConn()
-        self.db_cur = self.coon.cursor(cursor=pymysql.cursors.DictCursor)
+        self.db_conn = DB.__get_conn()
+        self.db_cur = self.db_conn.cursor(cursor=pymysql.cursors.DictCursor)
 
     @staticmethod
     def __get_conn():
         if DB.__pool is None:
-            __pool = PooledDB(creator=pymysql, host=setting.database_data_host, mincached=1, maxcached=20,
-                              port=setting.database_data_port, user=setting.database_data_user,
-                              passwd=setting.database_data_passwd, db=setting.database_data_db_name,
-                              charset=setting.database_data_charset)
-        return __pool.connection()
+            DB.__pool = PooledDB(creator=pymysql, host=setting.database_data_host, mincached=1, maxcached=20,
+                                 port=setting.database_data_port, user=setting.database_data_user,
+                                 passwd=setting.database_data_passwd, db=setting.database_data_db_name,
+                                 charset=setting.database_data_charset).connection()
+        return DB.__pool
 
     def query(self, sql):
         self.db_cur.execute(sql)
@@ -66,24 +66,25 @@ class DB:
         """
         开启事务
         """
-        self._conn.autocommit(0)
+        self.db_conn.autocommit(0)
 
     def end(self, option='commit'):
         """
         结束事务
         """
         if option == 'commit':
-            self._conn.commit()
+            self.db_conn.commit()
         else:
-            self._conn.rollback()
+            self.db_conn.rollback()
 
-    def dispose(self, isend=1):
+    def dispose(self, is_end=1):
         """
         释放连接池资源
         """
-        if isend == 1:
+        if is_end == 1:
             self.end('commit')
         else:
             self.end('rollback')
-        self._cursor.close()
-        self._conn.close()
+        self.db_cur.close()
+        self.db_conn.close()
+        DB.__pool = None
