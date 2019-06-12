@@ -38,25 +38,10 @@ class DB:
     def update(self, sql):
         self.db_cur.execute(sql)
 
-    def delete_data(self, table_name, business_date, period):
-        self.db_cur.execute("delete from {} where 日期 = {} and 转化周期 = {};".format(table_name, business_date, period))
-
-    def insert_data(self, table_name, field_tuple, num):
-        self.db_cur.execute("insert into {} {} values (%s{})".format(table_name, field_tuple, ',%s' * num))
-
     def commit(self):
         self.db_conn.commit()
 
+    def close(self):
+        self.db_cur.close()
+        self.db_conn.close()
 
-    def input(self, data):
-        """
-        delete data business primary key
-        insert data
-        :param data:
-        :return: True/False
-        """
-        pass
-
-    def input_batch(self, datas):
-        """"""
-        pass

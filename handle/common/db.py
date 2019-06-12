@@ -42,6 +42,9 @@ class DB:
     def commit(self):
         self.db_conn.commit()
 
+    def close(self):
+        self.db_cur.close()
+        self.db_conn.close()
 
     def input(self, data):
         """
