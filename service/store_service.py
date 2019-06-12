@@ -29,23 +29,6 @@ class StoreService:
                 stores.append(_store)
         return stores
 
-    def delete_store_by_id(self, store_id):
-        symbol = StoreDao().delete_by_id(store_id)
-        return symbol
-
-    def insert(self, name, plt_name, plt_store_id, login_username=None, url=None):
-        # if name is None:
-        #     raise Exception
-        # if self.check_store_name_exists(name):
-        #     raise Exception
-        # store_id = DB.insert('insert into t_store(name, plt_name, plt_store_id, login_username, url, status, created, updated) values(\'{}\', \'{}\', \'{}\', \'{}\', \'{}\', 1, now(), now())'.format(name, plt_name, plt_store_id, login_username, url))
-        # for property in properties:
-        #     store_id = DB.insert('insert into t_store_property(store_id, p_type, p_key_ p_value, p_description, created, updated) values(\'{}\', \'{}\', \'{}\', \'{}\', \'{}\', now(), now())'.format(store_id, property.p_type, property.p_key, property.p_value, property.p_description))
-        # return self.get_store(store_id)
-        pass
-
-
-class StorePropertyService:
     def get_store_properties(self, store_id):
         data = StorePropertyDao().query_by_store_id(store_id)
         if data:
@@ -63,5 +46,21 @@ class StorePropertyService:
             return store_properties
         else:
             print('该店铺id不存在:', store_id)
+
+    def delete_store_by_id(self, store_id):
+        symbol = StoreDao().delete_by_id(store_id)
+        return symbol
+
+    def insert(self, name, plt_name, plt_store_id, login_username=None, url=None):
+        # if name is None:
+        #     raise Exception
+        # if self.check_store_name_exists(name):
+        #     raise Exception
+        # store_id = DB.insert('insert into t_store(name, plt_name, plt_store_id, login_username, url, status, created, updated) values(\'{}\', \'{}\', \'{}\', \'{}\', \'{}\', 1, now(), now())'.format(name, plt_name, plt_store_id, login_username, url))
+        # for property in properties:
+        #     store_id = DB.insert('insert into t_store_property(store_id, p_type, p_key_ p_value, p_description, created, updated) values(\'{}\', \'{}\', \'{}\', \'{}\', \'{}\', now(), now())'.format(store_id, property.p_type, property.p_key, property.p_value, property.p_description))
+        # return self.get_store(store_id)
+        pass
+
 
 
