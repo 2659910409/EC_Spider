@@ -10,6 +10,10 @@ class StoreDao:
         data = DB.query_fetchall('select id, name, plt_name, plt_store_id, login_username, url, status, created, updated from t_store where id = {}'.format(id))
         return data
 
+    def query_by_name(self, name):
+        data = DB.query_fetchall('select id, name, plt_name, plt_store_id, login_username, url, status, created, updated from t_store where name = {}'.format(name))
+        return data
+
     def delete_by_id(self, id):
         DB.detele('delete from t_store where id = {}'.format(id))
         return True

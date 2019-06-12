@@ -4,6 +4,11 @@ from entity.page_data import *
 
 class PageService:
     def get_page(self, page_id):
+        """
+        获取需要抓取的页面信息
+        :param page_id: 页面id
+        :return: page实体对象
+        """
         data = PageDao().query_by_id(page_id)
         if data:
             id = data[0]
@@ -20,6 +25,11 @@ class PageService:
             print('页面id不存在:', page_id)
 
     def get_pages(self, page_ids):
+        """
+        获取多个页面信息
+        :param page_ids: 包含多个page_id的列表
+        :return:
+        """
         pages = []
         for page_id in page_ids:
             _page = self.get_page(page_id)
@@ -30,6 +40,7 @@ class PageService:
 
 class PageDataService:
     def get_page_data(self, page_data_id):
+
         data = PageDataDao().query_by_id(page_data_id)
         if data:
             id = data[0]

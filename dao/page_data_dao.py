@@ -54,6 +54,10 @@ class PageDataDao:
         data = DB.query_fetchall('select id, page_id, data_name, data_source_type, data_update_freq, data_update_time, created, updated from t_page_data where id = {}'.format(id))
         return data
 
+    def query_by_page_id(self, page_id):
+        data = DB.query_fetchall('select id, page_id, data_name, data_source_type, data_update_freq, data_update_time, created, updated from t_page_data where page_id = {}'.format(page_id))
+        return data
+
     def delete_by_id(self, id):
         DB.detele('delete from t_page_data where id = {}'.format(id))
 
