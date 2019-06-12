@@ -40,7 +40,11 @@ class PageService:
 
 class PageDataService:
     def get_page_data(self, page_data_id):
-
+        """
+        获取页面数据块信息
+        :param page_data_id: 页面数据块id
+        :return: 页面数据块的实体对象
+        """
         data = PageDataDao().query_by_id(page_data_id)
         if data:
             id = data[0]
@@ -56,13 +60,20 @@ class PageDataService:
         else:
             print('不存在该page_data_id:', page_data_id)
 
-    def get_page_datas(self, page_data_ids):
-        page_datas = []
-        for page_data_id in page_data_ids:
-            _page_data = self.get_page_data(page_data_id)
-            if _page_data is not None:
-                page_datas.append(_page_data)
-        return page_datas
+    def get_page_datas_by_page(self, page_id):
+        data = PageDataDao.query_by_page_id(page_id)
+        if data:
+            page_data_ids = []
+            page_datas = []
+            for row in data:
+                page_data_ids.append(page_data_ids)
+            for page_data_id in page_data_ids:
+                _page_data = self.get_page_data(page_data_id)
+                if _page_data is not None:
+                    page_datas.append(_page_data)
+            return page_datas
+        else:
+            print('不存在该page_id:', page_id)
 
     def get_page_data_columns(self, tab_id):
         data = PageDataColumnDao().query_by_tab_id(tab_id)

@@ -40,6 +40,11 @@ class StoreService:
         return stores
 
     def get_store_properties(self, store_id):
+        """
+        获取店铺的属性列表
+        :param store_id: 店铺id
+        :return: 返回该店铺所有属性组成的二维数组
+        """
         data = StorePropertyDao.query_by_store_id(store_id)
         if data:
             store_properties = []
@@ -58,10 +63,12 @@ class StoreService:
             print('该店铺id不存在:', store_id)
 
     def delete_store_by_id(self, store_id):
+        """根据店铺id删除店铺"""
         symbol = StoreDao.delete_by_id(store_id)
         return symbol
 
     def check_store_name_exists(self, store_name):
+        """根据店铺名验证店铺是否已存在"""
         data = StoreDao.query_by_name(store_name)
         if data:
             return True
