@@ -121,8 +121,8 @@ CREATE TABLE IF NOT EXISTS `rpa_monitor`.`t_page` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `website` VARCHAR(64) NOT NULL COMMENT 'BS网站/系统',
   `menu_level_first` VARCHAR(64) NOT NULL COMMENT '一级菜单',
-  `menu_level_two` VARCHAR(64) NULL COMMENT '二级菜单',
-  `mean_level_third` VARCHAR(64) NULL,
+  `menu_level_second` VARCHAR(64) NULL COMMENT '二级菜单',
+  `menu_level_third` VARCHAR(64) NULL,
   `url` VARCHAR(4096) NULL,
   `created` TIMESTAMP NULL,
   `updated` TIMESTAMP NULL,
@@ -207,7 +207,7 @@ CREATE TABLE IF NOT EXISTS `rpa_monitor`.`t_data_tab` (
   `updated` TIMESTAMP NULL,
   PRIMARY KEY (`id`),
   INDEX `page_data_id_idx` (`page_data_id` ASC) VISIBLE,
-  CONSTRAINT `page_data_id`
+  CONSTRAINT `page_data_id1`
     FOREIGN KEY (`page_data_id`)
     REFERENCES `rpa_monitor`.`t_page_data` (`id`)
     ON DELETE NO ACTION
@@ -232,12 +232,12 @@ CREATE TABLE IF NOT EXISTS `rpa_monitor`.`t_store_data_log` (
   PRIMARY KEY (`id`),
   INDEX `store_id_idx` (`store_id` ASC) VISIBLE,
   INDEX `page_data_id_idx` (`data_tab_id` ASC) VISIBLE,
-  CONSTRAINT `store_id`
+  CONSTRAINT `store_id1`
     FOREIGN KEY (`store_id`)
     REFERENCES `rpa_monitor`.`t_store` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `page_data_id`
+  CONSTRAINT `page_data_id2`
     FOREIGN KEY (`data_tab_id`)
     REFERENCES `rpa_monitor`.`t_data_tab` (`id`)
     ON DELETE NO ACTION

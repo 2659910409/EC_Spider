@@ -25,22 +25,14 @@ class DB:
         data = self.db_cur.fetchall()
         return data
 
-    def insert(self, sql):
-        self.db_cur.execute(sql)
-        id = int(self.db_cur.insert_id())
-        return id
+    def insert(self, sql, tuple_data):
+        self.db_cur.execute(sql, tuple_data)
+        data = self.query('select last_insert_id() as id')
+        key = data[0]['id']
+        return key
 
     def insert_many(self, sql, data_list):
         self.db_cur.executemany(sql, data_list)
-
-    def update(self, sql):
-        self.db_cur.execute(sql)
-
-    def delete_data(self, table_name, business_date, period):
-        self.db_cur.execute("delete from {} where 日期 = {} and 转化周期 = {};".format(table_name, business_date, period))
-
-    def insert_data(self, table_name, field_tuple, num):
-        self.db_cur.execute("insert into {} {} values (%s{})".format(table_name, field_tuple, ',%s' * num))
 
     def commit(self):
         self.db_conn.commit()

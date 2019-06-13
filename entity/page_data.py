@@ -1,17 +1,17 @@
 
 class PageEntity:
-    def __init__(self, id, website, menulevel_first, menulevel_second, menulevel_third, url, created, updated):
+    def __init__(self, id, website, menu_level_first, menu_level_second, menu_level_third, url, created, updated):
         self.id = id
         self.website = website
-        self.menulevel_first = menulevel_first
-        self.menulevel_second = menulevel_second
-        self.menulevel_third = menulevel_third
+        self.menu_level_first = menu_level_first
+        self.menu_level_second = menu_level_second
+        self.menu_level_third = menu_level_third
         self.url = url
         self.created = created
         self.updated = updated
 
 
-class PageDataColumnEntity:
+class DataTabColumnEntity:
     def __init__(self, id, data_tab_id, col_name, col_type, col_type_length, col_description, check_col_name, is_file_column, is_primary_key, is_data_maintenance_pk, created, updated):
         self.id = id
         self.data_tab_id = data_tab_id
@@ -63,4 +63,4 @@ class DataTabEntity:
         self.pre_cnt = pre_cnt
         self.created = created
         self.updated = updated
-        self.PageDataColumnEntity = page_data_column_entity
+        self.DataTabColumnEntity = page_data_column_entity

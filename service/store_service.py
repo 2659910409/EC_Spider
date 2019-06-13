@@ -53,13 +53,13 @@ class StoreService:
 
     def check_store_name_exists(self, store_name):
         """根据店铺名验证店铺是否已存在"""
-        data = StoreDao.query_by_name(store_name)
+        data = StoreDao().query_by_name(store_name)
         if data:
             return True
         else:
             return False
 
-    def add_store(self, name, plt_name, plt_store_id, login_username=None, url=None, status=1, properties=[]):
+    def add_store(self, name, plt_name, plt_store_id, login_username, url=None, status=1, properties=None):
         """
         增加店铺
         :param name: 店铺名
@@ -74,11 +74,15 @@ class StoreService:
         if self.check_store_name_exists(name):
             raise Exception('该店铺名已存在:', name)
         else:
-            StoreDao.insert(name, plt_name, plt_store_id, login_username, url, status)
+            key = StoreDao().insert(name, plt_name, plt_store_id, login_username, url, status)
             if properties:
                 for x in properties:
-                    StorePropertyDao(x[0], x[1], x[2], x[3], x[4])
+                    StorePropertyDao().insert(key, x[0], x[1], x[2], x[3])
             return True
+
+    def reduce_store(self, store_id):
+        StorePropertyDao().delete_by_store_id(store_id)
+        StoreDao().delete(store_id)
 
 
 
