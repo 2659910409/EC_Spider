@@ -27,8 +27,9 @@ class Base:
         :param page_data_id: 抓取的页面数据块id,用来获取页面数据块对象
         :param port: 已开启的浏览器服务端口
         """
-        self.store = StoreService.get(store_id)
-        self.page_data, self.page = PageDataService.get_page_info(page_data_id)
+        self.store = StoreService.get_store(store_id)
+        self.page_data = PageDataService.get_page_data(page_data_id)
+        self.page = self.page_data.page
         self.db = DB()
         self.port = port
         self.cache_path = setting.DATA_ROOT_PATH

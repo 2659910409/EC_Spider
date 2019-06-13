@@ -3,22 +3,24 @@ import pymysql
 from DBUtils.PooledDB import PooledDB
 import setting
 
+# 连接对象
+global DATABASE_POOL
+
 
 class DB:
-    __pool = None  # 连接对象
-
     def __init__(self):
         self.db_conn = DB.__get_conn()
         self.db_cur = self.db_conn.cursor(cursor=pymysql.cursors.DictCursor)
 
     @staticmethod
     def __get_conn():
-        if DB.__pool is None:
-            DB.__pool = PooledDB(creator=pymysql, host=setting.database_data_host, mincached=1, maxcached=20,
+        global DATABASE_POOL
+        if DATABASE_POOL is None:
+            DATABASE_POOL = PooledDB(creator=pymysql, host=setting.database_data_host, mincached=1, maxcached=20,
                                  port=setting.database_data_port, user=setting.database_data_user,
                                  passwd=setting.database_data_passwd, db=setting.database_data_db_name,
                                  charset=setting.database_data_charset).connection()
-        return DB.__pool
+        return DATABASE_POOL
 
     def query(self, sql):
         self.db_cur.execute(sql)

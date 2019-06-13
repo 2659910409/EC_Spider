@@ -1,6 +1,7 @@
 from common.db import DB
 from dao.store_dao import StoreDao, StorePropertyDao
 from entity.store import StoreEntity, StorePropertyEntity
+from handle.common.private_logging import Logging
 
 
 class StoreService:
@@ -16,7 +17,7 @@ class StoreService:
             store = StoreEntity(data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], property_entity)
             return store
         else:
-            print('店铺id不存在:', store_id)
+            Logging.error('店铺id不存在:', store_id)
 
     def get_stores(self, store_ids):
         """
@@ -44,11 +45,11 @@ class StoreService:
                 store_properties.append(StorePropertyEntity(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
             return store_properties
         else:
-            print('该店铺id不存在:', store_id)
+            Logging.error('该店铺id不存在:', store_id)
 
     def delete_store_by_id(self, store_id):
         """根据店铺id删除店铺"""
-        symbol = StoreDao.delete_by_id(store_id)
+        symbol = StoreDao.delete(store_id)
         return symbol
 
     def check_store_name_exists(self, store_name):
@@ -73,14 +74,13 @@ class StoreService:
         """
         if self.check_store_name_exists(name):
             raise Exception('该店铺名已存在:', name)
-        else:
-            key = StoreDao().insert(name, plt_name, plt_store_id, login_username, url, status)
-            if properties:
-                for x in properties:
-                    StorePropertyDao().insert(key, x[0], x[1], x[2], x[3])
-            return True
+        key = StoreDao().insert(name, plt_name, plt_store_id, login_username, url, status)
+        if properties:
+            for x in properties:
+                StorePropertyDao().insert(key, x[0], x[1], x[2], x[3])
+        return True
 
-    def reduce_store(self, store_id):
+    def delete_store(self, store_id):
         StorePropertyDao().delete_by_store_id(store_id)
         StoreDao().delete(store_id)
 

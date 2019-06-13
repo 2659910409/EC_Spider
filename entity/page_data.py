@@ -51,10 +51,12 @@ class PageDataEntity:
         self.created = created
         self.updated = updated
         self.page_data_confs = page_data_conf_entity
+        self.page = None
+        self.data_tabs = None
 
 
 class DataTabEntity:
-    def __init__(self, id, name, page_data_id, check_name_rule, business_columns, pre_cnt, created, updated, page_data_column_entity):
+    def __init__(self, id, name, page_data_id, check_name_rule, business_columns, pre_cnt, created, updated, page_data_columns):
         self.id = id
         self.name = name
         self.page_data_id = page_data_id
@@ -63,4 +65,4 @@ class DataTabEntity:
         self.pre_cnt = pre_cnt
         self.created = created
         self.updated = updated
-        self.DataTabColumnEntity = page_data_column_entity
+        self.data_tab_column = page_data_columns

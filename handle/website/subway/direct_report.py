@@ -6,6 +6,7 @@ from handle.common import db
 from retry import retry
 import pandas as pd
 import re
+import datetime
 
 class SpreadReport(Base):
     def _operator_time_control(self, start_date=None, end_date=None):
@@ -52,13 +53,13 @@ class SpreadReport(Base):
             self.web_driver.get(url) # 第一次请求到达平台默认页
             self.web_driver.close()
             self.web_driver.get(url)  # 第二次请求是为了到达指定的爬虫页
-        except as e:
+        except Exception as e:
             print(e, '请求失败,请检查传入的url是否有效:{}'.format(url))
             return False
         return True
 
 
-class SpreadReportDay(SubReport):
+class SpreadReportDay(SpreadReport):
     @retry(tries=3, delay=2)
     def operation_page(self):
         """
@@ -131,12 +132,12 @@ class SpreadReportDay(SubReport):
         col_cnt = df.shape[1] # 取出data_frame列数
         data_list = list(df.itertuples(index=False, name=None)) # 将data_frame每一行转化为元组放入列表中
         insert_sql = "insert into {} {} values (%s{})".format(self.table_name, field_tuple, ',%s'*(col_cnt-1))
-        db_cur.executemany(insert_sql, data_list)
-        db_conn.commit()
+        # db_cur.executemany(insert_sql, data_list)
+        # db_conn.commit()
 
 
 
-class SpreadReportMonth():
+class SpreadReportMonth(SpreadReport):
     @retry(tries=3, delay=2)
     def operation_page(self):
         """
