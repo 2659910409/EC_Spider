@@ -10,7 +10,7 @@ class PageService:
         :param page_id: 页面id
         :return: page实体对象
         """
-        data = PageDao().query_by_id(page_id)
+        data = PageDao().query_by_id(page_id)[0]
         if data:
             page = PageEntity(data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7])
             return page
@@ -44,7 +44,7 @@ class DataTabService:
             Logging.error('不存在该data_tab_id:', tab_id)
 
     def get_data_tab(self, tab_id):
-        data = DataTabDao.query(tab_id)
+        data = DataTabDao.query(tab_id)[0]
         if data:
             data_tab_column_entity = self._get_data_tab_columns(tab_id)
             data_tab = DataTabEntity(data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data_tab_column_entity)
@@ -66,8 +66,9 @@ class DataTabService:
         tab_key = DataTabDao().insert(name, page_data_id, check_name_rule, business_columns, pre_cnt)
         if data_tab_columns is not None and tab_key > 0:
             for x in data_tab_columns:
-                DataTabColumnDao().insert(tab_key, x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7])
-        return True
+                DataTabColumnDao().insert(tab_key, x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7], x[8])
+        data_tab = self.get_data_tab(tab_key)
+        return data_tab
 
     def delete_data_tab(self, tab_id):
         """

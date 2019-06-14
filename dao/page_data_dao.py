@@ -9,6 +9,7 @@ class PageDao:
 
     def insert(self, website, menu_level_first, url, menu_level_second=None, menu_level_third=None):
         key = self.db.insert("insert into t_page (website, menu_level_first, menu_level_second, menu_level_third, url, created, updated) values(%s{})".format(", %s"*6), (website, menu_level_first, menu_level_second, menu_level_third, url, get_current_timestamp(), get_current_timestamp()))
+        self.db.commit()
         return key
 
     def query(self, id):
@@ -23,8 +24,9 @@ class DataTabColumnDao:
     def __init__(self):
         self.db = DB()
 
-    def insert(self, data_tab_id, col_name, col_type, check_col_name, is_primary_key, is_data_maintenance_pk, is_file_column=None, col_type_length=None, col_description=None):
+    def insert(self, data_tab_id, col_name, col_type, check_col_name, is_primary_key, is_data_maintenance_pk, is_file_column, col_type_length, col_description):
         key = self.db.insert("insert into t_page_data_column (data_tab_id, col_name, col_type, col_type_length, col_description, check_col_name, is_file_column, is_primary_key, is_data_maintenance_pk, created, updated) values(%s{})".format(", %s"*9), (data_tab_id, col_name, col_type, col_type_length, col_description, check_col_name, is_file_column, is_primary_key, is_data_maintenance_pk, get_current_timestamp(), get_current_timestamp()))
+        self.db.commit()
         return key
 
     def query_by_tab_id(self, tab_id):
@@ -44,6 +46,7 @@ class PageDataConfDao:
 
     def insert(self, page_data_id, p_type, p_key, p_value, p_description):
         key = self.db.insert("insert into t_page_data_conf (page_data_id, p_type, p_key, p_value, p_description, created, updated) values(%s{})".format(", %s"*6), (page_data_id, p_type, p_key, p_value, p_description, get_current_timestamp(), get_current_timestamp()))
+        self.db.commit()
         return key
 
     def query_by_page_data_id(self, page_data_id):
@@ -63,6 +66,7 @@ class PageDataDao:
 
     def insert(self, page_id, data_name, data_source_type, data_update_freq, data_update_time):
         key = self.db.insert("insert into t_page_data (page_id, data_name, data_source_type, data_update_freq, data_update_time, created, updated) values(%s{})".format(", %s"*6), (page_id, data_name, data_source_type, data_update_freq, data_update_time, get_current_timestamp(), get_current_timestamp()))
+        self.db.commit()
         return key
 
     def query(self, id):
@@ -83,6 +87,7 @@ class DataTabDao:
 
     def insert(self, name, page_data_id, check_name_rule, business_columns, pre_cnt=1):
         key = self.db.insert("insert into t_data_tab (name, page_data_id, check_name_rule, business_columns, pre_cnt, created, updated) values(%s{})".format(", %s"*6), (name, page_data_id, check_name_rule, business_columns, pre_cnt, get_current_timestamp(), get_current_timestamp()))
+        self.db.commit()
         return key
 
     def query_by_page_data_id(self, page_data_id):

@@ -9,7 +9,7 @@ class DB:
 
     def __init__(self):
         self.db_conn = DB.__get_conn()
-        self.db_cur = self.db_conn.cursor(cursor=pymysql.cursors.DictCursor)
+        self.db_cur = self.db_conn.cursor(cursor=pymysql.cursors.Cursor)
 
     @staticmethod
     def __get_conn():
@@ -28,7 +28,7 @@ class DB:
     def insert(self, sql, tuple_data):
         self.db_cur.execute(sql, tuple_data)
         data = self.query('select last_insert_id() as id')
-        key = data[0]['id']
+        key = data[0][0]
         return key
 
     def insert_many(self, sql, data_list):

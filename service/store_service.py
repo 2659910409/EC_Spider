@@ -11,7 +11,7 @@ class StoreService:
         :param store_id: 店铺id
         :return: 店铺实体对象
         """
-        data = StoreDao.query_by_id(store_id)
+        data = StoreDao().query(store_id)[0]
         if data:
             property_entity = self.get_store_properties(store_id)
             store = StoreEntity(data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], property_entity)
@@ -38,7 +38,7 @@ class StoreService:
         :param store_id: 店铺id
         :return: 返回该店铺所有属性组成的二维数组
         """
-        data = StorePropertyDao.query_by_store_id(store_id)
+        data = StorePropertyDao().query_by_store_id(store_id)
         if data:
             store_properties = []
             for row in data:
@@ -60,7 +60,7 @@ class StoreService:
         else:
             return False
 
-    def add_store(self, name, plt_name, plt_store_id, login_username, url=None, status=1, properties=None):
+    def add_store(self, name, plt_name, plt_store_id, login_username=None, url=None, status=1, properties=None):
         """
         增加店铺
         :param name: 店铺名
@@ -78,7 +78,8 @@ class StoreService:
         if properties:
             for x in properties:
                 StorePropertyDao().insert(key, x[0], x[1], x[2], x[3])
-        return True
+        store = self.get_store(key)
+        return store
 
     def delete_store(self, store_id):
         StorePropertyDao().delete_by_store_id(store_id)
