@@ -155,7 +155,6 @@ class SpreadReportDay(SpreadReport):
     #     self.operation_data_backup()
 
 
-
 class SpreadReportMonth(SpreadReport):
     @retry(tries=3, delay=2)
     def operation_page(self):

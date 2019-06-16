@@ -25,20 +25,21 @@ class DataTabColumnDao:
     def __init__(self):
         self.db = DB()
 
-    def insert(self, data_tab_id, col_name, col_type, check_col_name, is_primary_key, is_data_maintenance_pk, is_file_column, col_type_length, col_description):
-        key = self.db.insert("insert into t_page_data_column (data_tab_id, col_name, col_type, col_type_length, col_description, check_col_name, is_file_column, is_primary_key, is_data_maintenance_pk, created, updated) values(%s{})".format(", %s"*9), (data_tab_id, col_name, col_type, col_type_length, col_description, check_col_name, is_file_column, is_primary_key, is_data_maintenance_pk, get_current_timestamp(), get_current_timestamp()))
+    def insert(self, data_tab_id, col_name, col_type, col_type_length, col_description, check_col_name, is_file_column, is_primary_key, is_data_maintenance_pk):
+        key = self.db.insert("insert into t_data_tab_column (data_tab_id, col_name, col_type, col_type_length, col_description, check_col_name, is_file_column, is_primary_key, is_data_maintenance_pk, created, updated) values(%s{})".format(", %s"*10), (data_tab_id, col_name, col_type, col_type_length, col_description, check_col_name, is_file_column, is_primary_key, is_data_maintenance_pk, get_current_timestamp(), get_current_timestamp()))
         self.db.commit()
         return key
 
     def query_by_tab_id(self, tab_id):
-        data = self.db.query("select id, data_tab_id, col_name, col_type, col_type_length, col_description, check_col_name, is_file_column, is_primary_key, is_data_maintenance_pk, created, updated from t_page_data_column where id = {}".format(tab_id))
+        data = self.db.query("select id, data_tab_id, col_name, col_type, col_type_length, col_description, check_col_name, is_file_column, is_primary_key, is_data_maintenance_pk, created, updated from t_data_tab_column where data_tab_id = {}".format(tab_id))
         return data
 
     def delete(self, id):
-        self.db.delete("delete from t_page_data_column where id = {}".format(id))
+        self.db.delete("delete from t_data_tab_column where id = {}".format(id))
 
     def delete_by_data_tab_id(self, data_tab_id):
-        self.db.delete("delete from t_page_data_column where data_tab_id = {}".format(data_tab_id))
+        self.db.delete("delete from t_data_tab_column where data_tab_id = {}".format(data_tab_id))
+        self.db.commit()
 
 
 class PageDataConfDao:
@@ -59,6 +60,7 @@ class PageDataConfDao:
 
     def delete_by_page_data_id(self, page_data_id):
         self.db.delete("delete from t_page_data_conf where page_data_id = {}".format(page_data_id))
+        self.db.commit()
 
 
 class PageDataDao:

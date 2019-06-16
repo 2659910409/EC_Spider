@@ -40,7 +40,7 @@ class PageDataConfEntity:
 
 
 class PageDataEntity:
-    def __init__(self, id, page_id, name, data_source_type, data_update_freq, data_update_time, created, updated, page_data_confs, page, data_tabs=None):
+    def __init__(self, id, page_id, name, data_source_type, data_update_freq, data_update_time, created, updated, page_data_confs, page, data_tabs):
         self.id = id
         self.page_id = page_id
         self.name = name
@@ -55,7 +55,7 @@ class PageDataEntity:
 
 
 class DataTabEntity:
-    def __init__(self, id, name, page_data_id, check_name_rule, business_columns, pre_cnt, created, updated, page_data_columns):
+    def __init__(self, id, name, page_data_id, check_name_rule, business_columns, pre_cnt, created, updated, data_tab_columns):
         self.id = id
         self.name = name
         self.page_data_id = page_data_id
@@ -64,4 +64,4 @@ class DataTabEntity:
         self.pre_cnt = pre_cnt
         self.created = created
         self.updated = updated
-        self.data_tab_column = page_data_columns
+        self.data_tab_columns = data_tab_columns
