@@ -1,4 +1,3 @@
-from common.db import DB
 from dao.store_dao import StoreDao, StorePropertyDao
 from entity.store import StoreEntity, StorePropertyEntity
 from common.private_logging import Logging

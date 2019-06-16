@@ -104,7 +104,7 @@ class SpreadReportDay(SpreadReport):
             df['店铺名'] = self.store.store_name
             df['日期'] = df['_日期']
             df['文件路径'] = self.store_name
-            df['文件sheet'] = cache_file_name
+            # df['文件sheet'] = cache_file_name TODO shijun 变量未定义
             df['转化周期'] = '15天累计数据'
             df['报表类型'] = '宝贝'
             df['入库时间'] = time.get_current_timestamp()

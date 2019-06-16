@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from common.db import DB
 from handle.err_message import ErrorEnum
 from common.private_logging import Logging
@@ -14,28 +15,34 @@ import setting
 
 
 class Base:
+
     def __init__(self, store_id, page_data_id, port):
         """
         初始化爬虫任务所需的信息
         1.实例化对象：Store、PageData、Table
         2.环境初始化
         3.web_driver 连接确认
-        4.web_driver 店铺LOGIN确认
+        4.web_driver 店铺LOGIN确认，确认浏览正常并店铺已登录成功时置login_flag=True
         :param store_id: 店铺id,用来获取店铺对象
         :param page_data_id: 抓取的页面数据块id,用来获取页面数据块对象
         :param port: 已开启的浏览器服务端口
         """
-        self.store = StoreService.get_store(store_id)
-        self.page_data = PageDataService.get_page_data(page_data_id)
-        self.page = self.page_data.page
-        self.db = DB()
-        self.port = port
-        self.cache_path = setting.DATA_ROOT_PATH
-        self.web_driver = None
         self.error = None
-        self.file = None
-        self.source_data = None
-        self.data = None
+        self.login_flag = False
+        try:
+            self.store = StoreService().get_store(store_id)
+            self.page_data = PageDataService().get_page_data(page_data_id)
+            self.page = self.page_data.page
+            self.db = DB()
+            self.port = port
+            self.cache_path = setting.DATA_ROOT_PATH
+            self.web_driver = None
+            self.file = None
+            self.source_data = None
+            self.data = None
+        except Exception as e:
+            Logging.error(e)
+            self.error = ErrorEnum.ERROR_1000
 
     def operation_page(self):
         """
@@ -47,7 +54,7 @@ class Base:
 
     def operation_page_download(self):
         """
-        文件下载及下载文件管理
+        文件下载及下载文件管理（针对文件下载类取数）
         1）是否有文件下载
         2）文件是否下载完成
         3）文件下载完成后迁移
@@ -78,7 +85,7 @@ class Base:
 
     def operation_data_backup(self, cache_file_path):
         """
-        目前只针对下载文件 进行数据备份
+        目前只针对下载文件 进行数据备份（针对文件下载类取数）
         :return: True/False
         """
         # TODO 根路径引用

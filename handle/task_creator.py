@@ -8,6 +8,7 @@ class TaskCreator(Task):
 
     def task_init(self):
         """初始化任务列表"""
+        # TODO 初始化任务时，尚未完成的任务处理 status=0/1 任务处理
         sql = 'insert into t_job(topic,status,job_params,job_schedule,job_schedule_value,job_sort,created,updated) ' \
               'select ' \
               '\'total\' as topic,0,concat(t1.id,\'|\',GROUP_CONCAT(t2.id, \',\')) as job_params' \
@@ -17,13 +18,14 @@ class TaskCreator(Task):
 
     def task_added(self):
         """补入任务列表"""
-        sql = 'insert into t_job(topic,status,job_params,job_schedule,job_schedule_value,job_sort,created,updated)' \
+        # TODO 初始化任务时，尚未完成的任务处理 status=0/1 任务处理
+        sql = 'insert into t_job(topic,status,job_params,job_schedule,job_schedule_value,job_sort,created,updated) ' \
               'select ' \
               '\'append\' as topic,0 as status' \
               ',concat(t.store_id,\'|\',GROUP_CONCAT(t.page_data_id, \',\')) as job_params' \
               ',\'realtime\',\'\',1,now(),now() ' \
               'from (' \
-              'select distinct t1.id as store_id,t2.id as page_data_id from t_store t1 left join t_page_data t2 on 1=1' \
+              'select distinct t1.id as store_id,t2.id as page_data_id from t_store t1 left join t_page_data t2 on 1=1 ' \
               'left join t_store_data_log t3 on t1.id = t3.store_id and t2.id = t3.page_data_id ' \
               'where t3.status is null or t3.status != 1 and date(t3.created) = current_date' \
               ') t ' \
@@ -73,12 +75,21 @@ class TaskCreator(Task):
         :return:
         """
         while True:
-            sql = 'select * from t_job where status in (0,1);'
+            sql = 'select status, id, topic, job_params from t_job where status in (0,1);'
             jobs = self.db.query(sql)
             # TODO 任务设置超时，强制终止时间机制实现
             finish_flag = True if len(jobs) <= 0 else False
             if finish_flag:
-                Logging.info('任务完成')
-                # TODO 统一调度入库等操作
+                Logging.info('所有任务执行完成！')
+                # TODO 统一调度入库操作
+                # TODO 监控告警操作
                 pass
+            task_waiting = 0
+            task_running = 0
+            for x in jobs:
+                if x[0] == 0:
+                    task_waiting = task_waiting + 1
+                if x[0] == 1:
+                    task_running = task_running + 1
+            Logging.info('heartbeat 待执行任务数：', task_waiting, '执行中任务数：', task_running)
             sleep(30)

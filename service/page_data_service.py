@@ -4,6 +4,7 @@ from common.private_logging import Logging
 
 
 class PageService:
+
     def get_page(self, page_id):
         """
         获取需要抓取的页面信息
