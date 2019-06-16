@@ -31,10 +31,10 @@ class TestStoreService(unittest.TestCase):
         self.assertIsNotNone(store, '插入失败,未返回店铺对象')
         store_new = store_service.get_store(store.id)
         self.assertEqual(store_name, store_new.name, '插入失败，店铺信息不匹配')
-        # store_service.delete_store(store.id)
-        # r_store = store_service.get_store(store.id)
-        # r_store_property = store_service._get_store_properties(store.id)
-        # self.assertFalse(r_store and r_store_property, '店铺或店铺属性未删除成功')
+        store_service.delete_store(store.id)
+        r_store = store_service.get_store(store.id)
+        r_store_property = store_service._get_store_properties(store.id)
+        self.assertFalse(r_store and r_store_property, '删除失败,店铺或店铺属性未删除成功')
 
 
 if __name__ == '__main__':
