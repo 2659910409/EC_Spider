@@ -45,8 +45,11 @@ class DB:
         Logging.info('db.insert sql:', sql)
         self.db_cur.execute(sql, tuple_data)
         data = self.query('select last_insert_id() as id')
-        key = data[0]['id']
+        key = data[0][0]
         return key
+
+    def delete(self, sql):
+        self.db_cur.execute(sql)
 
     def insert_many(self, sql, data_list):
         Logging.info('db.insert_many sql:', sql, data_list)
@@ -100,13 +103,3 @@ class DB:
         DB.__pool = None
 
 
-if __name__ == '__main__':
-    db = DB.instance()
-    db.query('select 1;')
-    print(db)
-    db = DB.instance()
-    db.query('select 1;')
-    print(db)
-    db = DB.instance()
-    db.query('select 1;')
-    print(db)
