@@ -21,8 +21,11 @@ class DB:
                                  charset=setting.database_data_charset).connection()
         return DB.__pool
 
+    def execute(self, sql):
+        Logging.debug('db.execute sql:', sql)
+        return self.db_cur.execute(sql)
+
     def query(self, sql):
-        Logging.debug('select_sql:', sql)
         self.db_cur.execute(sql)
         data = self.db_cur.fetchall()
         return data

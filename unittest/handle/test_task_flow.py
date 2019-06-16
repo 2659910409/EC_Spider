@@ -1,7 +1,5 @@
-from handle.common.private_logging import Logging
 from handle.err_message import ErrorEnum
 from handle.task_controller import TaskController
-from handle.task_parameters import TaskParameters
 
 
 # step0.1:Master:全量任务生成
@@ -24,29 +22,36 @@ def worker_task_finish():
 # step0.3:Worker:任务获取
 def worker_task_run():
     tc = TaskController('handle.task_creator.TaskCreator')
-    store_id, page_data_ids = tc.run('get_task')
-    port = None
-    for page_data_id in page_data_ids:
-        # step1:Worker:取数-初始化任务
-        params = TaskParameters(store_id, page_data_id, port)
-        task = TaskController('handle.website.subway.report.SubReportDay', params)
-        if not task.is_success():
-            # 店铺未登录异常
-            if task.error.name == ErrorEnum.ERROR_1001.name:
-                # step2:Worker:取数-登录操作
-                login_tc = TaskController('handle.login.tb_login.TaoLogin', task.store)
-                login_tc.run('run')
-                port = login_tc.port
-        # step3:Worker:取数-页面操作
-        task.run('operation_page')
-        # step4:Worker:取数-页面文件下载及读取
-        task.run('operation_page_download')
-        # step5:Worker:取数-数据处理
-        task.run('operation_data_process')
-        # step6:Worker:取数-数据入库
-        task.run('operation_data_input')
-        # step7:Worker:取数-数据备份
-        task.run('operation_data_backup')
+    job_id, store_id, page_data_ids = tc.run('get_task')
+    while job_id:
+        flag = tc.run('task_set_start', {'job_id': job_id})
+        if not flag:
+            continue
+        port = None
+        for page_data_id in page_data_ids:
+            # step1:Worker:取数-初始化任务
+            param = {'store_id': store_id, 'page_data_id': page_data_id, 'port': port}
+            task = TaskController('handle.website.subway.report.SubReportDay', param)
+            if not task.is_success():
+                # 店铺未登录异常
+                if task.error.name == ErrorEnum.ERROR_1001.name:
+                    # step2:Worker:取数-登录操作
+                    login_tc = TaskController('handle.login.tb_login.TaoLogin', task.store)
+                    login_tc.run('run')
+                    port = login_tc.port
+            # step3:Worker:取数-页面操作
+            task.run('operation_page')
+            # step4:Worker:取数-页面文件下载及读取
+            task.run('operation_page_download')
+            # step5:Worker:取数-数据处理
+            task.run('operation_data_process')
+            # step6:Worker:取数-数据入库
+            task.run('operation_data_input')
+            # step7:Worker:取数-数据备份
+            task.run('operation_data_backup')
+        tc.run('task_set_end', {'job_id': job_id, 'result': 'success'})
+        # 继续获取任务
+        job_id, store_id, page_data_ids = tc.run('get_task')
 
 
 if __name__ == '__main__':
