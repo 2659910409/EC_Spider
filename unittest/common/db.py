@@ -1,4 +1,4 @@
-from handle.common.db import DB
+from common.db import DB
 
 if __name__ == '__main__':
     db1 = DB()

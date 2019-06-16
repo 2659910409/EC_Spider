@@ -1,4 +1,4 @@
-from handle.common.db import DB
+from common.db import DB
 from handle.err_message import ErrorEnum
 from handle.common.private_logging import Logging
 from selenium import webdriver
@@ -8,10 +8,8 @@ import os
 import re
 import zipfile
 import shutil
-from timeout3 import timeout
 from service.store_service import StoreService
 from service.page_data_service import PageDataService
-from service.page_data_service import PageService
 import setting
 
 

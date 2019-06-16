@@ -49,6 +49,7 @@ class PageDataService:
             return page_data
         else:
             Logging.error('不存在该page_data_id:', page_data_id)
+        return None
 
     def _get_page_data_confs(self, page_data_id):
         data = PageDataConfDao().query_by_page_data_id(page_data_id)

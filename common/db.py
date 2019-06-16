@@ -2,28 +2,31 @@
 import pymysql
 from DBUtils.PooledDB import PooledDB
 import setting
-from common.private_logging import Logging
+import threading
 
 
 class DB:
-    __pool = None  # 连接对象
+    _instance_lock = threading.Lock()
 
     def __init__(self):
         self.db_conn = DB.__get_conn()
         self.db_cur = self.db_conn.cursor(cursor=pymysql.cursors.Cursor)
 
+    @classmethod
+    def instance(cls, *args, **kwargs):
+        if not hasattr(DB, "_instance"):
+            with DB._instance_lock:
+                if not hasattr(DB, "_instance"):
+                    DB._instance = DB(*args, **kwargs)
+        return DB._instance
+
     @staticmethod
     def __get_conn():
-        if DB.__pool is None:
-            DB.__pool = PooledDB(creator=pymysql, host=setting.database_data_host, mincached=1, maxcached=20,
+        __pool = PooledDB(creator=pymysql, host=setting.database_data_host, mincached=2, maxcached=20,
                                  port=setting.database_data_port, user=setting.database_data_user,
                                  passwd=setting.database_data_passwd, db=setting.database_data_db_name,
                                  charset=setting.database_data_charset).connection()
-        return DB.__pool
-
-    def execute(self, sql):
-        Logging.debug('db.execute sql:', sql)
-        return self.db_cur.execute(sql)
+        return __pool
 
     def query(self, sql):
         self.db_cur.execute(sql)
@@ -31,19 +34,13 @@ class DB:
         return data
 
     def insert(self, sql, tuple_data):
-        Logging.debug('insert_sql:', sql)
         self.db_cur.execute(sql, tuple_data)
         data = self.query('select last_insert_id() as id')
-        key = data[0][0]
+        key = data[0]['id']
         return key
 
     def insert_many(self, sql, data_list):
-        Logging.debug('insert_sql:', sql)
         self.db_cur.executemany(sql, data_list)
-
-    def delete(self, sql):
-        Logging.debug('delete_sql:', sql)
-        self.db_cur.execute(sql)
 
     def commit(self):
         self.db_conn.commit()
@@ -91,3 +88,15 @@ class DB:
         self.db_cur.close()
         self.db_conn.close()
         DB.__pool = None
+
+
+if __name__ == '__main__':
+    db = DB.instance()
+    db.query('select 1;')
+    print(db)
+    db = DB.instance()
+    db.query('select 1;')
+    print(db)
+    db = DB.instance()
+    db.query('select 1;')
+    print(db)

@@ -12,7 +12,6 @@ import pyautogui
 from random import randint, uniform
 from datetime import datetime
 import logging
-from handle.common.monitor import sendDingDingMessage
 
 
 class TaoLogin:

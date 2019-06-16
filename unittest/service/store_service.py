@@ -48,7 +48,7 @@ class TestStoreService(unittest.TestCase):
         store_service = StoreService()
         store_service.delete_store(store_id)
         r_store = store_service.get_store(store_id)
-        r_store_property = store_service.get_store_properties(store_id)
+        r_store_property = store_service._get_store_properties(store_id)
         self.assertFalse(r_store and r_store_property, '店铺或店铺属性未删除成功')
 
 

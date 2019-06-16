@@ -1,7 +1,7 @@
 from common.db import DB
 from dao.store_dao import StoreDao, StorePropertyDao
 from entity.store import StoreEntity, StorePropertyEntity
-from handle.common.private_logging import Logging
+from common.private_logging import Logging
 
 
 class StoreService:
@@ -14,7 +14,7 @@ class StoreService:
         data = StoreDao().query(store_id)
         if data:
             data = data[0]
-            property_entity = self.get_store_properties(store_id)
+            property_entity = self._get_store_properties(store_id)
             store = StoreEntity(data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], property_entity)
             return store
         else:
@@ -33,7 +33,7 @@ class StoreService:
                 stores.append(_store)
         return stores
 
-    def get_store_properties(self, store_id):
+    def _get_store_properties(self, store_id):
         """
         获取店铺的属性列表
         :param store_id: 店铺id
@@ -47,11 +47,6 @@ class StoreService:
             return store_properties
         else:
             Logging.error('该店铺id不存在:', store_id)
-
-    def delete_store_by_id(self, store_id):
-        """根据店铺id删除店铺"""
-        symbol = StoreDao.delete(store_id)
-        return symbol
 
     def check_store_name_exists(self, store_name):
         """根据店铺名验证店铺是否已存在"""
@@ -74,7 +69,8 @@ class StoreService:
         :return:
         """
         if self.check_store_name_exists(name):
-            raise Exception('该店铺名已存在:', name)
+            Logging.error('add_store：', name, '店铺名已存在！')
+            return None
         key = StoreDao().insert(name, plt_name, plt_store_id, login_username, url, status)
         if properties:
             for x in properties:
