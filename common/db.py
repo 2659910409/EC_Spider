@@ -3,6 +3,7 @@ import pymysql
 from DBUtils.PooledDB import PooledDB
 import setting
 import threading
+from common.private_logging import Logging
 
 
 class DB:
@@ -29,17 +30,26 @@ class DB:
         return __pool
 
     def query(self, sql):
+        Logging.info('db.query sql:', sql)
         self.db_cur.execute(sql)
         data = self.db_cur.fetchall()
         return data
 
+    def execute(self, sql):
+        Logging.info('db.execute sql:', sql)
+        result = self.db_cur.execute(sql)
+        self.commit()
+        return result
+
     def insert(self, sql, tuple_data):
+        Logging.info('db.insert sql:', sql)
         self.db_cur.execute(sql, tuple_data)
         data = self.query('select last_insert_id() as id')
         key = data[0]['id']
         return key
 
     def insert_many(self, sql, data_list):
+        Logging.info('db.insert_many sql:', sql, data_list)
         self.db_cur.executemany(sql, data_list)
 
     def commit(self):

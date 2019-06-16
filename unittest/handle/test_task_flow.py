@@ -26,6 +26,8 @@ def worker_task_run():
     while job_id:
         flag = tc.run('task_set_start', {'job_id': job_id})
         if not flag:
+            # 继续获取任务
+            job_id, store_id, page_data_ids = tc.run('get_task')
             continue
         port = None
         for page_data_id in page_data_ids:
@@ -60,5 +62,5 @@ if __name__ == '__main__':
     worker_task_run()
     # 增量初始化任务执行
     worker_task_added()
-    worker_task_run()
     worker_task_finish()
+    worker_task_run()

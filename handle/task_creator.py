@@ -1,6 +1,7 @@
 from handle.task import Task
 from handle.common.time import sleep
-from handle.common.private_logging import Logging
+from common.private_logging import Logging
+from random import shuffle
 
 
 class TaskCreator(Task):
@@ -32,30 +33,37 @@ class TaskCreator(Task):
     def get_task(self):
         """获取任务"""
         # TODO 数据库事务操作
-        sql = 'select id, params from t_job where status = 0 order by job_sort,RAND();'
+        sql = 'select id, job_params from t_job where status = 0 order by job_sort,RAND();'
         jobs = self.db.query(sql)
         if len(jobs) > 0:
             job = jobs[0]
             Logging.info('总任务数：', len(jobs), ' 获取任务：', job)
-            job_id = job[0]
-            store_id = job[1].split('|')[0]
-            page_data_ids = job[1].split('|')[1].split(',')
+            job_id = int(job[0])
+            store_id = int(job[1].split('|')[0])
+            _page_data_ids = job[1].split('|')[1].split(',')
+            _page_data_ids.remove('')
+            shuffle(_page_data_ids)
+            page_data_ids = []
+            for s in _page_data_ids:
+                page_data_ids.append(int(s))
             return job_id, store_id, page_data_ids
         return None, None, None
 
-    def task_set_start(self, params):
+    def task_set_start(self, param):
         """任务设置启动"""
         # TODO 事务确认操作，任务可以执行
-        sql = 'update t_job set status = 1,start_time=now(),updated=now() where status = 0 and job_id = {}'
-        self.db.execute(sql.format(params['job_id']))
+        sql = 'update t_job set status = 1,start_time=now(),updated=now() where status = 0 and id = {}'
+        result = self.db.execute(sql.format(param['job_id']))
+        return result
 
-    def task_set_end(self, params):
+    def task_set_end(self, param):
         """任务设置结束"""
-        if params['result'] == 'success':
-            sql = 'update t_job set status = 2,end_time=now(),updated=now() where status = 1 and job_id = {}'
+        if param['result'] == 'success':
+            sql = 'update t_job set status = 2,end_time=now(),updated=now() where status = 1 and id = {}'
         else:
-            sql = 'update t_job set status = 3,end_time=now(),updated=now() where status = 1 and job_id = {}'
-        self.db.execute(sql.format(params['job_id']))
+            sql = 'update t_job set status = 3,end_time=now(),updated=now() where status = 1 and id = {}'
+        result = self.db.execute(sql.format(param['job_id']))
+        return result
 
     def task_finish(self):
         """

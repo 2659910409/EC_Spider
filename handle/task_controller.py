@@ -1,5 +1,5 @@
 from handle.err_message import ErrorEnum
-from handle.common.private_logging import Logging
+from common.private_logging import Logging
 from handle.task_creator import TaskCreator
 from handle.login import tb_login
 from handle.website.subway.spread_report import SpreadReportDay
@@ -17,6 +17,7 @@ class TaskController:
         """
         self.obj_name = name
         self.obj_param = param
+        self.obj = None
         self.error = None
         try:
             Logging.info(self.obj_name, self.obj_param, ' 实例化 start!')
@@ -34,7 +35,9 @@ class TaskController:
             Logging.info(self.obj_name, self.obj_param, ' 实例化 end!')
         except Exception as e:
             Logging.error(e)
-            self.error = self.obj.error
+            if self.is_success() and self.obj and self.obj.error:
+                self.error = self.obj.error
+            self.error = ErrorEnum.ERROR_9999
 
     def get_obj(self):
         return self.obj

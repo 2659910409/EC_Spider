@@ -12,6 +12,7 @@ import pyautogui
 from random import randint, uniform
 from datetime import datetime
 import logging
+LOGIN_URL = ''
 
 
 class TaoLogin:
@@ -34,7 +35,7 @@ class TaoLogin:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         return s.connect_ex((ip, port))
 
-    def get_all_chrome_handle():
+    def get_all_chrome_handle(self):
         '''
         :return: 所有打开的chrome浏览器句柄
         '''
@@ -137,7 +138,8 @@ class TaoLogin:
         text = '店铺:{},\n' \
                '时间:{},\n' \
                '登录需要短信验证，请及时处理'.format(self.shopname, datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-        utils.sendDingDingMessage(DingDingGroupURL, title, text)
+        # TODO 钉钉告警
+        # utils.sendDingDingMessage(DingDingGroupURL, title, text)
         while self.check_login_ok():
             sleep(1)
 
@@ -246,6 +248,3 @@ class TaoLogin:
             logging.info('已将店铺作最小化处理，店铺：{}'.format(self.shopname))
         except Exception as e:
             logging.error('店铺最小化失败，店铺：{}，错误信息：{}'.format(self.shopname, e))
-
-
-
