@@ -79,7 +79,7 @@ class TestPageDataService(unittest.TestCase):
     def test_add_data_tab(self):
         page_data_id = 8
         data_tab_param = ['app_subway_report_spreadbaby_day', page_data_id, '平台-页面-菜单-模块-粒度', '店铺id,日期,转化周期',
-                          data_tab_columns=[[]]]
+                          [[]]]
 
 
 
