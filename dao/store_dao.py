@@ -20,7 +20,8 @@ class StoreDao:
         return data
 
     def delete(self, id):
-        self.db.detele("delete from t_store where id = {}".format(id))
+        self.db.delete("delete from t_store where id = {}".format(id))
+        self.db.commit()
         return True
 
 
@@ -38,8 +39,10 @@ class StorePropertyDao:
         return data
 
     def delete(self, id):
-        self.db.detele("delete from t_store_property where id = {}".format(id))
+        self.db.delete("delete from t_store_property where id = {}".format(id))
+        self.db.commit()
 
     def delete_by_store_id(self, store_id):
-        self.db.detele("delete from t_store_property where store_id = {}".format(store_id))
+        self.db.delete("delete from t_store_property where store_id = {}".format(store_id))
+        self.db.commit()
 

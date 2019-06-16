@@ -1,6 +1,7 @@
 
 
 class Logging:
+    @staticmethod
     def info(*s):
         """
         正常输出日志
@@ -9,6 +10,7 @@ class Logging:
         """
         print(s)
 
+    @staticmethod
     def debug(*s):
         """
         调试时输出详细日志
@@ -17,6 +19,7 @@ class Logging:
         """
         print(s)
 
+    @staticmethod
     def warning(*s):
         """
         不符合逻辑但并非异常，不影响程序执行的情况，告警
@@ -25,6 +28,7 @@ class Logging:
         """
         print(s)
 
+    @staticmethod
     def error(*s):
         """
         异常，当前过程执行失败

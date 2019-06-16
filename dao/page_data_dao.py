@@ -17,7 +17,8 @@ class PageDao:
         return data
 
     def delete(self, id):
-        self.db.detele("delete from t_page where id = {}".format(id))
+        self.db.delete("delete from t_page where id = {}".format(id))
+        self.db.commit()
 
 
 class DataTabColumnDao:
@@ -34,10 +35,10 @@ class DataTabColumnDao:
         return data
 
     def delete(self, id):
-        self.db.detele("delete from t_page_data_column where id = {}".format(id))
+        self.db.delete("delete from t_page_data_column where id = {}".format(id))
 
     def delete_by_data_tab_id(self, data_tab_id):
-        self.db.detele("delete from t_page_data_column where data_tab_id = {}".format(data_tab_id))
+        self.db.delete("delete from t_page_data_column where data_tab_id = {}".format(data_tab_id))
 
 
 class PageDataConfDao:
@@ -50,35 +51,36 @@ class PageDataConfDao:
         return key
 
     def query_by_page_data_id(self, page_data_id):
-        data = self.db.query("select id, page_data_id, p_type, p_key, p_value, p_description, created, updated from t_page_data where page_data_id = {}".format(page_data_id))
+        data = self.db.query("select id, page_data_id, p_type, p_key, p_value, p_description, created, updated from t_page_data_conf where page_data_id = {}".format(page_data_id))
         return data
 
     def delete(self, id):
-        self.db.detele("delete from t_page_data_conf where id = {}".format(id))
+        self.db.delete("delete from t_page_data_conf where id = {}".format(id))
 
     def delete_by_page_data_id(self, page_data_id):
-        self.db.detele("delete from t_page_data_conf where page_data_id = {}".format(page_data_id))
+        self.db.delete("delete from t_page_data_conf where page_data_id = {}".format(page_data_id))
 
 
 class PageDataDao:
     def __init__(self):
         self.db = DB()
 
-    def insert(self, page_id, data_name, data_source_type, data_update_freq, data_update_time):
-        key = self.db.insert("insert into t_page_data (page_id, data_name, data_source_type, data_update_freq, data_update_time, created, updated) values(%s{})".format(", %s"*6), (page_id, data_name, data_source_type, data_update_freq, data_update_time, get_current_timestamp(), get_current_timestamp()))
+    def insert(self, page_id, name, data_source_type, data_update_freq, data_update_time):
+        key = self.db.insert("insert into t_page_data (page_id, name, data_source_type, data_update_freq, data_update_time, created, updated) values(%s{})".format(", %s"*6), (page_id, name, data_source_type, data_update_freq, data_update_time, get_current_timestamp(), get_current_timestamp()))
         self.db.commit()
         return key
 
     def query(self, id):
-        data = self.db.query("select id, page_id, data_name, data_source_type, data_update_freq, data_update_time, created, updated from t_page_data where id = {}".format(id))
+        data = self.db.query("select id, page_id, name, data_source_type, data_update_freq, data_update_time, created, updated from t_page_data where id = {}".format(id))
         return data
 
     def query_by_page_id(self, page_id):
-        data = self.db.query("select id, page_id, data_name, data_source_type, data_update_freq, data_update_time, created, updated from t_page_data where page_id = {}".format(page_id))
+        data = self.db.query("select id, page_id, name, data_source_type, data_update_freq, data_update_time, created, updated from t_page_data where page_id = {}".format(page_id))
         return data
 
     def delete(self, id):
-        self.db.detele("delete from t_page_data where id = {}".format(id))
+        self.db.delete("delete from t_page_data where id = {}".format(id))
+        self.db.commit()
 
 
 class DataTabDao:
@@ -99,5 +101,6 @@ class DataTabDao:
         return data
     
     def delete(self, id):
-        self.db.detele("delete from t_data_tab where id = {}".format(id))
+        self.db.delete("delete from t_data_tab where id = {}".format(id))
+        self.db.commit()
 

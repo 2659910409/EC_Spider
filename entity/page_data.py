@@ -27,7 +27,6 @@ class DataTabColumnEntity:
         self.updated = updated
 
 
-
 class PageDataConfEntity:
     def __init__(self, id, page_data_id, p_type, p_key, p_value, p_description, created, updated):
         self.id = id
@@ -41,18 +40,18 @@ class PageDataConfEntity:
 
 
 class PageDataEntity:
-    def __init__(self, id, page_id, data_name, data_source_type, data_update_freq, data_update_time, created, updated, page_data_conf_entity):
+    def __init__(self, id, page_id, name, data_source_type, data_update_freq, data_update_time, created, updated, page_data_confs, page, data_tabs=None):
         self.id = id
         self.page_id = page_id
-        self.data_name = data_name
+        self.name = name
         self.data_source_type = data_source_type
         self.data_update_freq = data_update_freq
         self.data_update_time = data_update_time
         self.created = created
         self.updated = updated
-        self.page_data_confs = page_data_conf_entity
-        self.page = None
-        self.data_tabs = None
+        self.page_data_confs = page_data_confs
+        self.page = page
+        self.data_tabs = data_tabs
 
 
 class DataTabEntity:

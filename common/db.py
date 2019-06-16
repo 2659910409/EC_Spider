@@ -2,6 +2,7 @@
 import pymysql
 from DBUtils.PooledDB import PooledDB
 import setting
+from common.private_logging import Logging
 
 
 class DB:
@@ -21,18 +22,25 @@ class DB:
         return DB.__pool
 
     def query(self, sql):
+        Logging.debug('select_sql:', sql)
         self.db_cur.execute(sql)
         data = self.db_cur.fetchall()
         return data
 
     def insert(self, sql, tuple_data):
+        Logging.debug('insert_sql:', sql)
         self.db_cur.execute(sql, tuple_data)
         data = self.query('select last_insert_id() as id')
         key = data[0][0]
         return key
 
     def insert_many(self, sql, data_list):
+        Logging.debug('insert_sql:', sql)
         self.db_cur.executemany(sql, data_list)
+
+    def delete(self, sql):
+        Logging.debug('delete_sql:', sql)
+        self.db_cur.execute(sql)
 
     def commit(self):
         self.db_conn.commit()

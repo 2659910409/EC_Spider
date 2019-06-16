@@ -11,8 +11,9 @@ class StoreService:
         :param store_id: 店铺id
         :return: 店铺实体对象
         """
-        data = StoreDao().query(store_id)[0]
+        data = StoreDao().query(store_id)
         if data:
+            data = data[0]
             property_entity = self.get_store_properties(store_id)
             store = StoreEntity(data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], property_entity)
             return store
