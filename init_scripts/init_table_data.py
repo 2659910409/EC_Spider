@@ -40,10 +40,11 @@ if __name__ == '__main__':
             for data_tab in t_data_tab_list:
                 data_tab_name = data_tab[0]
                 t_data_tab_column_list = np.array(t_data_tab_column[t_data_tab_column['data_tab_name'] == data_tab_name].iloc[:, 1:]).tolist()
-                # 准备参数
                 data_tab.append(t_data_tab_column_list)
                 data_tabs.append(data_tab)
+            # 准备参数
             page_data.extend([data_tabs, t_page_data_conf_list])
+            # 插入数据
             page_data_obj = PageDataService().add_page_data(page_obj.id, page_data[0], page_data[1],
                                                             page_data[2], page_data[3], page_data[4],
                                                             page_data[5], page_data_confs=page_data[6])
