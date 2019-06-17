@@ -34,12 +34,13 @@ class TestPageDataService(unittest.TestCase):
         data_tabs = [['app_subway_spread_baby_day', '直通车-推广计划列表-宝贝', '日期', 1, data_tab_columns]]
         page_data_confs = [['筛选条件', '转化周期', '15天累计数据', '条件:转化周期'],
                            ['筛选条件', '报表类型', '宝贝', '条件:宝贝']]
-        page_data_param = [page_new.id, '推广计划列表-宝贝-日报', 'file', 'day', '每天12:00更新', data_tabs, page_data_confs]
+        page_data_param = [page_new.id, '推广计划列表-宝贝-日报', 1, 'file', 'day', '12:00', data_tabs, page_data_confs]
         page_data_service = PageDataService()
         page_data = page_data_service.add_page_data(page_data_param[0], page_data_param[1], page_data_param[2],
                                                     page_data_param[3], page_data_param[4], page_data_param[5],
                                                     page_data_confs=page_data_param[6])
         self.assertIsNotNone(page_data, '插入失败,未返回page_data对象')
+        # 查询获取page_data对象与原数据进行对比验证
         page_data_new = page_data_service.get_page_data(page_data.id)
         self.assertEqual(page_data_param[1], page_data_new.name, '插入失败,page_data的name信息不匹配')
         if page_data_confs is not None:

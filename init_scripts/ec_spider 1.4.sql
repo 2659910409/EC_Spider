@@ -109,6 +109,7 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `ec_spider`.`t_page` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `website` VARCHAR(64) NOT NULL COMMENT 'BS网站/系统',
+  `name` VARCHAR(64) NOT NULL COMMENT '页面名称',
   `menu_level_first` VARCHAR(64) NOT NULL COMMENT '一级菜单',
   `menu_level_second` VARCHAR(64) NULL COMMENT '二级菜单',
   `menu_level_third` VARCHAR(64) NULL,

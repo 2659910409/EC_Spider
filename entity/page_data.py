@@ -1,6 +1,6 @@
 
 class PageEntity:
-    def __init__(self, id, website, menu_level_first, menu_level_second, menu_level_third, url, created, updated):
+    def __init__(self, id, website, name, menu_level_first, menu_level_second, menu_level_third, url, created, updated):
         self.id = id
         self.website = website
         self.menu_level_first = menu_level_first
@@ -40,10 +40,11 @@ class PageDataConfEntity:
 
 
 class PageDataEntity:
-    def __init__(self, id, page_id, name, data_source_type, data_update_freq, data_update_time, created, updated, page_data_confs, page, data_tabs):
+    def __init__(self, id, page_id, name, status, data_source_type, data_update_freq, data_update_time, created, updated, page_data_confs, page, data_tabs):
         self.id = id
         self.page_id = page_id
         self.name = name
+        self.status = status
         self.data_source_type = data_source_type
         self.data_update_freq = data_update_freq
         self.data_update_time = data_update_time

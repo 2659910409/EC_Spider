@@ -7,13 +7,13 @@ class PageDao:
     def __init__(self):
         self.db = DB()
 
-    def insert(self, website, menu_level_first, url, menu_level_second=None, menu_level_third=None):
-        key = self.db.insert("insert into t_page (website, menu_level_first, menu_level_second, menu_level_third, url, created, updated) values(%s{})".format(", %s"*6), (website, menu_level_first, menu_level_second, menu_level_third, url, get_current_timestamp(), get_current_timestamp()))
+    def insert(self, website, name, menu_level_first, url, menu_level_second=None, menu_level_third=None):
+        key = self.db.insert("insert into t_page (website, name, menu_level_first, menu_level_second, menu_level_third, url, created, updated) values(%s{})".format(", %s"*6), (website, name, menu_level_first, menu_level_second, menu_level_third, url, get_current_timestamp(), get_current_timestamp()))
         self.db.commit()
         return key
 
     def query(self, id):
-        data = self.db.query("select id, website, menu_level_first, menu_level_second, menu_level_third, url, created, updated from t_page where id = {}".format(id))
+        data = self.db.query("select id, website, name, menu_level_first, menu_level_second, menu_level_third, url, created, updated from t_page where id = {}".format(id))
         return data
 
     def delete(self, id):
@@ -67,17 +67,17 @@ class PageDataDao:
     def __init__(self):
         self.db = DB()
 
-    def insert(self, page_id, name, data_source_type, data_update_freq, data_update_time):
-        key = self.db.insert("insert into t_page_data (page_id, name, data_source_type, data_update_freq, data_update_time, created, updated) values(%s{})".format(", %s"*6), (page_id, name, data_source_type, data_update_freq, data_update_time, get_current_timestamp(), get_current_timestamp()))
+    def insert(self, page_id, name, status, data_source_type, data_update_freq, data_update_time):
+        key = self.db.insert("insert into t_page_data (page_id, name, status, data_source_type, data_update_freq, data_update_time, created, updated) values(%s{})".format(", %s"*7), (page_id, name, status, data_source_type, data_update_freq, data_update_time, get_current_timestamp(), get_current_timestamp()))
         self.db.commit()
         return key
 
     def query(self, id):
-        data = self.db.query("select id, page_id, name, data_source_type, data_update_freq, data_update_time, created, updated from t_page_data where id = {}".format(id))
+        data = self.db.query("select id, page_id, name, status, data_source_type, data_update_freq, data_update_time, created, updated from t_page_data where id = {}".format(id))
         return data
 
     def query_by_page_id(self, page_id):
-        data = self.db.query("select id, page_id, name, data_source_type, data_update_freq, data_update_time, created, updated from t_page_data where page_id = {}".format(page_id))
+        data = self.db.query("select id, page_id, name, status, data_source_type, data_update_freq, data_update_time, created, updated from t_page_data where page_id = {}".format(page_id))
         return data
 
     def delete(self, id):

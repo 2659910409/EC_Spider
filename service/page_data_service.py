@@ -19,7 +19,7 @@ class PageService:
         else:
             Logging.error('page_id:', page_id, ' 不存在！')
 
-    def add_page(self, website, menu_level_first, url, menu_level_second, menu_level_third):
+    def add_page(self, website, name, menu_level_first, url, menu_level_second, menu_level_third):
         """
         增加page
         :param website:
@@ -29,7 +29,7 @@ class PageService:
         :param menu_level_third:
         :return:
         """
-        key = PageDao().insert(website, menu_level_first, url, menu_level_second, menu_level_third)
+        key = PageDao().insert(website, name, menu_level_first, url, menu_level_second, menu_level_third)
         page = self.get_page(key)
         return page
 
@@ -47,7 +47,7 @@ class PageDataService:
             page_data_confs = self._get_page_data_confs(page_data_id)
             page = PageService().get_page(data[1])
             data_tabs = self._get_data_tabs(page_data_id)
-            page_data = PageDataEntity(data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], page_data_confs, page, data_tabs)
+            page_data = PageDataEntity(data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], page_data_confs, page, data_tabs)
             return page_data
         else:
             Logging.error('不存在该page_data_id:', page_data_id)
@@ -63,7 +63,7 @@ class PageDataService:
         else:
             Logging.error('不存在该page_data_id:', page_data_id)
 
-    def add_page_data(self, page_id, data_name, data_source_type, data_update_freq, data_update_time, data_tabs, page_data_confs=None):
+    def add_page_data(self, page_id, name, status, data_source_type, data_update_freq, data_update_time, data_tabs, page_data_confs=None):
         """
         增加page_data
         :param page_id:
@@ -75,7 +75,7 @@ class PageDataService:
         :param page_data_confs:
         :return:
         """
-        key = PageDataDao().insert(page_id, data_name, data_source_type, data_update_freq, data_update_time)
+        key = PageDataDao().insert(page_id, name, status, data_source_type, data_update_freq, data_update_time)
         if key > 0:
             for x in data_tabs:
                 self.add_data_tab(x[0], key, x[1], x[2], x[3], x[4])
