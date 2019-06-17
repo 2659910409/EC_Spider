@@ -43,6 +43,7 @@ class DB:
 
     def insert(self, sql, tuple_data):
         Logging.info('db.insert sql:', sql)
+        Logging.info('db.insert tuple:', tuple_data)
         self.db_cur.execute(sql, tuple_data)
         data = self.query('select last_insert_id() as id')
         key = data[0][0]

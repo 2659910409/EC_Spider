@@ -3,6 +3,7 @@ class PageEntity:
     def __init__(self, id, website, name, menu_level_first, menu_level_second, menu_level_third, url, created, updated):
         self.id = id
         self.website = website
+        self.name = name
         self.menu_level_first = menu_level_first
         self.menu_level_second = menu_level_second
         self.menu_level_third = menu_level_third

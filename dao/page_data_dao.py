@@ -8,7 +8,7 @@ class PageDao:
         self.db = DB()
 
     def insert(self, website, name, menu_level_first, url, menu_level_second=None, menu_level_third=None):
-        key = self.db.insert("insert into t_page (website, name, menu_level_first, menu_level_second, menu_level_third, url, created, updated) values(%s{})".format(", %s"*6), (website, name, menu_level_first, menu_level_second, menu_level_third, url, get_current_timestamp(), get_current_timestamp()))
+        key = self.db.insert("insert into t_page (website, name, menu_level_first, menu_level_second, menu_level_third, url, created, updated) values(%s{})".format(", %s"*7), (website, name, menu_level_first, menu_level_second, menu_level_third, url, get_current_timestamp(), get_current_timestamp()))
         self.db.commit()
         return key
 

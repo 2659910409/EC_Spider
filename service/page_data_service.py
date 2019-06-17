@@ -14,12 +14,12 @@ class PageService:
         data = PageDao().query(page_id)
         if data:
             data = data[0]
-            page = PageEntity(data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7])
+            page = PageEntity(data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8])
             return page
         else:
             Logging.error('page_id:', page_id, ' 不存在！')
 
-    def add_page(self, website, name, menu_level_first, url, menu_level_second, menu_level_third):
+    def add_page(self, website, name, menu_level_first, menu_level_second, menu_level_third, url):
         """
         增加page
         :param website:
