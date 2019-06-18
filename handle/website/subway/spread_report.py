@@ -78,13 +78,14 @@ class SpreadReportBabyDay(SpreadReport):
             self.web_driver.get(download_url)
             if self.web_driver.find_element_in_xpath(''):
                 self.web_driver.find_element_in_xpath('').click()
+                time.sleep(5)
                 break
         self.wait_download_finish()
 
     def operation_data_process(self):
         """
-        等待文件下载完成并解析文件数据
-        :return: data_frame
+        解析处理数据
+        :return: True/False
         """
         try:
             # 从数据库读取目标表的所有字段名
@@ -125,9 +126,6 @@ class SpreadReportBabyDay(SpreadReport):
     def operation_data_input(self):
         """
         将读取到的data_frame按照字段名写入到数据库
-        :param field_tuple: 表字段名组成的元组
-        :param df: 读取到的data_frame
-        :return: True/False
         """
         try:
             df = self.data_list[0]
