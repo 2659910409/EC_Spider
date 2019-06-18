@@ -49,11 +49,23 @@ class PageDataEntity:
         self.data_source_type = data_source_type
         self.data_update_freq = data_update_freq
         self.data_update_time = data_update_time
+        # TODO 是否是下载取数
+        self.is_download = False
+        # TODO 多张物理表、多个数据/多个文件
+        self.is_multiple_data = False
         self.created = created
         self.updated = updated
         self.page_data_confs = page_data_confs
         self.page = page
         self.data_tabs = data_tabs
+
+    def is_download_file(self):
+        if self.data_source_type == 'file':
+            return True
+        elif self.data_source_type == 'html':
+            return False
+        else:
+            raise Exception('未知的源数据类型 data_source_type:', self.data_source_type)
 
 
 class DataTabEntity:

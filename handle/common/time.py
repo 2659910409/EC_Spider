@@ -28,6 +28,10 @@ def add_day(date, days):
     return result_date
 
 
+def get_yesterday():
+    return add_day(-1)
+
+
 def add_month(date, months):
     date = date + relativedelta(months=months)
     return date
