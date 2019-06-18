@@ -1,5 +1,7 @@
 
 DATA_ROOT_PATH = 'C:/RPAData/DATA/'
+DATA_BACKUP_PATH = 'C:/RPAData/BackUp'
+DATA_PROCESS_PATH = 'C:/RPAData/Process'
 
 database_system_host = 'localhost'
 database_system_user = 'root'

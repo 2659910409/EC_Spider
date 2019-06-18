@@ -1,11 +1,11 @@
 from handle.website.base import Base
 from handle.err_message import ErrorEnum
 from common.private_logging import Logging
-from handle.common import time
 from retry import retry
 import pandas as pd
 import re
 from service.page_data_service import PageDataService
+from handle.common.private_time import *
 
 
 class SpreadReport(Base):
@@ -14,26 +14,23 @@ class SpreadReport(Base):
         时间筛选控件操作
         :param start_date: 日期区间的开始日期,需自定义日期报表时指定
         :param end_date: 日期区间的结束日期,需自定义日期报表时指定
-        :return: True/False
         """
-        self.web_driver.find_element_in_xpath('//*[@id="mx_423"]').clear()
-        self.web_driver.find_element_in_xpath('//*[@id="mx_423"]').send_keys(time.date_to_string(start_date))
-        self.web_driver.find_element_in_xpath('//*[@id="mx_423"]').clear()
-        self.web_driver.find_element_in_xpath('//*[@id="mx_423"]').send_keys(time.date_to_string(end_date))
-        self.web_driver.find_element_in_xpath('//*[@id="mx_423"]').click()
+        # 获取日期控件文本框并输入日期
+        self.web_driver.find_element_in_xpath('//*[@id="mx_1485"]').clear()
+        self.web_driver.find_element_in_xpath('//*[@id="mx_1485"]').send_keys(date_to_string(start_date))
+        self.web_driver.find_element_in_xpath('//*[@id="mx_1486"]').clear()
+        self.web_driver.find_element_in_xpath('//*[@id="mx_1486"]').send_keys(date_to_string(end_date))
+        # 点击确定
+        self.web_driver.find_element_in_xpath('//*[@id="brix_6985"]/ div/div/div[2]/a[1]').click()
+        self.web_driver.find_element_in_xpath('//*[@id="J_bpreport_dpanel_mx_1465"]/form/div/a[1]').click()
 
+    def _operator_name_control(self):
+        """操作报表名称文本框"""
+        file_name = self.page_data.name + date_to_string(get_current_timestamp(), '%Y%m%d%H%M%S')
+        self.web_driver.find_element_in_xpath('//*[@id="J_bpreport_dname_mx_1465"]').clear()
+        self.web_driver.find_element_in_xpath('//*[@id="J_bpreport_dname_mx_1465"]').send_keys(file_name)
+        self.web_driver.find_element_in_xpath('//*[@id="brix_brick_6587"]/ul/li[1]').click()
 
-    def _operator_period_control(self, xpath):
-        """
-        转化周期控件操作
-        :param num:
-        :return:
-        """
-        self.web_driver.find_element_in_xpath('').click()
-
-    def _operator_point_control(self):
-        """指标条件筛选"""
-        pass
 
     def _locate_page(self):
         """
@@ -46,29 +43,25 @@ class SpreadReport(Base):
             self.web_driver.close(self.page.url)
             self.web_driver.get(self.page.url)  # 第二次请求是为了到达指定的爬虫页
         except Exception as e:
-            print(e, '请求失败,请检查传入的url是否有效:{}'.format(self.page.url))
+            Logging.error(e)
+            self.error = ErrorEnum.ERROR_3001
             return False
         return True
 
 
-class SpreadReportDay(SpreadReport):
+class SpreadReportBabyDay(SpreadReport):
     def operation_page(self):
         """
         报表条件筛选
         """
         try:
-            start_date, end_date = time.get_day_report_rule1()
-            # 多条件筛选
-            # TODO 15天累计转化？
-            xpath = ''
-            self._operator_period_control(xpath)
+            start_date, end_date = get_day_report_rule1()
+            # 各控件筛选操作
+            self._operator_name_control()
             self._operator_time_control(start_date, end_date)
-            self._operator_point_control()
-            # 取数
-            self.web_driver.find_element_in_xpath('').text
         except Exception as e:
             Logging.error(e)
-            self.error = ErrorEnum.ERROR_3000
+            self.error = ErrorEnum.ERROR_3002
             return False
         return True
 
@@ -77,6 +70,16 @@ class SpreadReportDay(SpreadReport):
         下载报表,并读取数据
         """
         # 读取文件并解析
+        download_url = 'https://subway.simba.taobao.com/#!/report/bpreport/download'
+        self.web_driver.get(download_url)
+        # 获取总页数
+        page_num = self.web_driver.find_element_in_xpath('//*[@id="brix_brick_291"]/div[2]/div[2]/span[2]').text
+        for x in range(page_num):
+            download_url = 'https://subway.simba.taobao.com/#!/report/bpreport/download' + '?page={}'.format(x)
+            self.web_driver.get(download_url)
+            if 1:
+                pass
+
         cache_file_name, cache_file_path = self.is_download_finish()
         df = pd.read_csv(cache_file_path)
         if df.shape[0] <= 0 or df.shape[1] <= 0:  # 需要判断表格中是否存在业务数据

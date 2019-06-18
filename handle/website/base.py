@@ -15,7 +15,6 @@ import setting
 
 
 class Base:
-
     def __init__(self, store_id, page_data_id, port):
         """
         初始化爬虫任务所需的信息
@@ -89,7 +88,7 @@ class Base:
         :return: True/False
         """
         # TODO 根路径引用
-        backup_dir = 'C:/RPA DATA/' + self.data + '/' + self.port  # 目录规则:平台名-菜单名-页面名-模块名-报表类型
+        backup_dir = setting.DATA_BACKUP_PATH + self.page.website + '/' + self.page.name + '/' + self.page_data.name  # 目录规则:平台名-菜单名-页面名-模块名-报表类型
         if not os.path.exists(backup_dir):
             os.makedirs(backup_dir)
         shutil.move(cache_file_path, self.backup_dir)
@@ -179,7 +178,7 @@ class Base:
             raise IOError
         return cache_file_name, cache_file_path
 
-    def wait_unzip_finish(self, cache_path, cache_file_path):
+    def unzip(self, cache_path, cache_file_path):
         """
         对压缩文件解压缩
         :param cache_path:
