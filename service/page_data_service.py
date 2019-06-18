@@ -47,7 +47,7 @@ class PageDataService:
             page_data_confs = self._get_page_data_confs(page_data_id)
             page = PageService().get_page(data[1])
             data_tabs = self._get_data_tabs(page_data_id)
-            page_data = PageDataEntity(data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], page_data_confs, page, data_tabs)
+            page_data = PageDataEntity(data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], data[8], data[9], data[10], page_data_confs, page, data_tabs)
             return page_data
         else:
             Logging.error('不存在该page_data_id:', page_data_id)
@@ -63,19 +63,22 @@ class PageDataService:
         else:
             Logging.error('不存在该page_data_id:', page_data_id)
 
-    def add_page_data(self, page_id, name, status, data_source_type, data_update_freq, data_update_time, data_tabs, page_data_confs=None):
+    def add_page_data(self, page_id, name, status, data_source_type, data_update_freq, data_update_time, rule_read_file_prefix, rule_save_path_suffix, data_tabs, page_data_confs=None):
         """
-        增加page_data
+        插入page_data, page, data_tab, data_tab_columns,page_data_confs数据
         :param page_id:
-        :param data_name:
+        :param name:
+        :param status:
         :param data_source_type:
         :param data_update_freq:
         :param data_update_time:
+        :param rule_read_file_prefix:
+        :param rule_save_path_suffix:
         :param data_tabs:
         :param page_data_confs:
         :return:
         """
-        key = PageDataDao().insert(page_id, name, status, data_source_type, data_update_freq, data_update_time)
+        key = PageDataDao().insert(page_id, name, status, data_source_type, data_update_freq, data_update_time, rule_read_file_prefix, rule_save_path_suffix)
         if key > 0:
             for x in data_tabs:
                 self.add_data_tab(x[0], key, x[1], x[2], x[3], x[4])

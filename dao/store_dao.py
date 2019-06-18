@@ -1,5 +1,5 @@
 from common.db import DB
-from handle.common.time import get_current_timestamp
+from handle.common.private_time import get_current_timestamp
 
 
 class StoreDao:

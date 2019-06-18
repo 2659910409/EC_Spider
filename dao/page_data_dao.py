@@ -1,5 +1,5 @@
 from common.db import DB
-from handle.common.time import get_current_timestamp
+from handle.common.private_time import get_current_timestamp
 from entity.page_data import *
 
 
@@ -67,17 +67,17 @@ class PageDataDao:
     def __init__(self):
         self.db = DB()
 
-    def insert(self, page_id, name, status, data_source_type, data_update_freq, data_update_time):
-        key = self.db.insert("insert into t_page_data (page_id, name, status, data_source_type, data_update_freq, data_update_time, created, updated) values(%s{})".format(", %s"*7), (page_id, name, status, data_source_type, data_update_freq, data_update_time, get_current_timestamp(), get_current_timestamp()))
+    def insert(self, page_id, name, status, data_source_type, data_update_freq, data_update_time, rule_read_file_prefix, rule_save_path_suffix):
+        key = self.db.insert("insert into t_page_data (page_id, name, status, data_source_type, data_update_freq, data_update_time, rule_read_file_prefix, rule_save_path_suffix, created, updated) values(%s{})".format(", %s"*9), (page_id, name, status, data_source_type, data_update_freq, data_update_time, rule_read_file_prefix, rule_save_path_suffix, get_current_timestamp(), get_current_timestamp()))
         self.db.commit()
         return key
 
     def query(self, id):
-        data = self.db.query("select id, page_id, name, status, data_source_type, data_update_freq, data_update_time, created, updated from t_page_data where id = {}".format(id))
+        data = self.db.query("select id, page_id, name, status, data_source_type, data_update_freq, data_update_time, rule_read_file_prefix, rule_save_path_suffix, created, updated from t_page_data where id = {}".format(id))
         return data
 
     def query_by_page_id(self, page_id):
-        data = self.db.query("select id, page_id, name, status, data_source_type, data_update_freq, data_update_time, created, updated from t_page_data where page_id = {}".format(page_id))
+        data = self.db.query("select id, page_id, name, status, data_source_type, data_update_freq, data_update_time, rule_read_file_prefix, rule_save_path_suffix, created, updated from t_page_data where page_id = {}".format(page_id))
         return data
 
     def delete(self, id):

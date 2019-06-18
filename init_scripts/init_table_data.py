@@ -3,22 +3,22 @@ from service.page_data_service import PageService, PageDataService
 import pandas as pd
 import numpy as np
 
+
 if __name__ == '__main__':
     # 读取所有excel配置文件
-    # TODO 使用相对路径
-    t_store = pd.read_excel('D:/py3_project/EC_Spider/init_scripts/INIT_TABLE_DATA/t_store.xlsx')
+    t_store = pd.read_excel('./INIT_TABLE_DATA/t_store.xlsx')
     t_store = t_store.where(t_store.notnull(), None)  # 将data_frame中所有Nan值转化为None,Nan无法插入数据库
-    t_store_property = pd.read_excel('D:/py3_project/EC_Spider/init_scripts/INIT_TABLE_DATA/t_store_property.xlsx')
+    t_store_property = pd.read_excel('./INIT_TABLE_DATA/t_store_property.xlsx')
     t_store_property = t_store_property.where(t_store_property.notnull(), None)
-    t_page = pd.read_excel('D:/py3_project/EC_Spider/init_scripts/INIT_TABLE_DATA/t_page.xlsx')
+    t_page = pd.read_excel('./INIT_TABLE_DATA/t_page.xlsx')
     t_page = t_page.where(t_page.notnull(), None)
-    t_page_data = pd.read_excel('D:/py3_project/EC_Spider/init_scripts/INIT_TABLE_DATA/t_page_data.xlsx')
+    t_page_data = pd.read_excel('./INIT_TABLE_DATA/t_page_data.xlsx')
     t_page_data = t_page_data.where(t_page_data.notnull(), None)
-    t_page_data_conf = pd.read_excel('D:/py3_project/EC_Spider/init_scripts/INIT_TABLE_DATA/t_page_data_conf.xlsx')
+    t_page_data_conf = pd.read_excel('./INIT_TABLE_DATA/t_page_data_conf.xlsx')
     t_page_data_conf = t_page_data_conf.where(t_page_data_conf.notnull(), None)
-    t_data_tab = pd.read_excel('D:/py3_project/EC_Spider/init_scripts/INIT_TABLE_DATA/t_data_tab.xlsx')
+    t_data_tab = pd.read_excel('./INIT_TABLE_DATA/t_data_tab.xlsx')
     t_data_tab = t_data_tab.where(t_data_tab.notnull(), None)
-    t_data_tab_column = pd.read_excel('D:/py3_project/EC_Spider/init_scripts/INIT_TABLE_DATA/t_data_tab_column.xlsx')
+    t_data_tab_column = pd.read_excel('./INIT_TABLE_DATA/t_data_tab_column.xlsx')
     t_data_tab_column = t_data_tab_column.where(t_data_tab_column.notnull(), None)
     # 遍历获取store批次数据
     t_store_list = np.array(t_store).tolist()  # 将data_frame转换为二维数组
@@ -48,7 +48,9 @@ if __name__ == '__main__':
             # 插入数据
             page_data_obj = PageDataService().add_page_data(page_obj.id, page_data[0], page_data[1],
                                                             page_data[2], page_data[3], page_data[4],
-                                                            page_data[5], page_data_confs=page_data[6])
+                                                            page_data[5], page_data[6], page_data[7],
+                                                            page_data_confs=page_data[8])
+
 
 
 

@@ -41,7 +41,7 @@ class PageDataConfEntity:
 
 
 class PageDataEntity:
-    def __init__(self, id, page_id, name, status, data_source_type, data_update_freq, data_update_time, created, updated, page_data_confs, page, data_tabs):
+    def __init__(self, id, page_id, name, status, data_source_type, data_update_freq, data_update_time, rule_read_file_prefix, rule_save_path_suffix, created, updated, page_data_confs, page, data_tabs):
         self.id = id
         self.page_id = page_id
         self.name = name
@@ -49,9 +49,8 @@ class PageDataEntity:
         self.data_source_type = data_source_type
         self.data_update_freq = data_update_freq
         self.data_update_time = data_update_time
-        # TODO 新增
-        self.rule_read_file_prefix = None
-        self.rule_save_path_suffix = None
+        self.rule_read_file_prefix = rule_read_file_prefix
+        self.rule_save_path_suffix = rule_save_path_suffix
         self.created = created
         self.updated = updated
         self.page_data_confs = page_data_confs

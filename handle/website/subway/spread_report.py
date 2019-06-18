@@ -70,6 +70,7 @@ class SpreadReportBabyDay(SpreadReport):
         下载报表,并读取数据
         """
         # 读取文件并解析
+        # 等待 todo
         download_url = 'https://subway.simba.taobao.com/#!/report/bpreport/download'
         self.web_driver.get(download_url)
         # 获取总页数
@@ -79,11 +80,10 @@ class SpreadReportBabyDay(SpreadReport):
             self.web_driver.get(download_url)
             if 1:
                 pass
-
-        cache_file_name, cache_file_path = self.is_download_finish()
-        df = pd.read_csv(cache_file_path)
-        if df.shape[0] <= 0 or df.shape[1] <= 0:  # 需要判断表格中是否存在业务数据
-            print('下载的文件为空文件')
+        self.wait_download_finish()
+        # df = pd.read_csv(cache_file_path)
+        # if df.shape[0] <= 0 or df.shape[1] <= 0:  # 需要判断表格中是否存在业务数据
+        #     print('下载的文件为空文件')
 
     def operation_data_process(self):
         """

@@ -34,11 +34,12 @@ class TestPageDataService(unittest.TestCase):
         data_tabs = [['app_subway_spread_baby_day', '直通车-推广计划列表-宝贝', '日期', 1, data_tab_columns]]
         page_data_confs = [['筛选条件', '转化周期', '15天累计数据', '条件:转化周期'],
                            ['筛选条件', '报表类型', '宝贝', '条件:宝贝']]
-        page_data_param = [page_new.id, '推广计划列表-宝贝-日报', 1, 'file', 'day', '12:00', data_tabs, page_data_confs]
+        page_data_param = [page_new.id, '推广计划列表-宝贝-日报', 1, 'file', 'day', '12:00', None, None, data_tabs, page_data_confs]
         page_data_service = PageDataService()
         page_data = page_data_service.add_page_data(page_data_param[0], page_data_param[1], page_data_param[2],
                                                     page_data_param[3], page_data_param[4], page_data_param[5],
-                                                    page_data_param[6], page_data_confs=page_data_param[7])
+                                                    page_data_param[6], page_data_param[7], page_data_param[8],
+                                                    page_data_confs=page_data_param[9])
         self.assertIsNotNone(page_data, '插入失败,未返回page_data对象')
         # 查询获取page_data对象与原数据进行对比验证
         page_data_new = page_data_service.get_page_data(page_data.id)
