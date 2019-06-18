@@ -3,6 +3,7 @@ from common.private_logging import Logging
 from handle.task_creator import TaskCreator
 from handle.login import tb_login
 from handle.website.subway.spread_report import SpreadReportDay
+from handle.website.subway.direct_report import SpreadReportDay as SpreadReportDay1
 
 
 class TaskController:
@@ -32,6 +33,8 @@ class TaskController:
             # ========================== 抓取页面实例配置 START ==========================
             elif self.obj_name == 'handle.website.subway.report.SubReportDay':
                 self.obj = SpreadReportDay(self.obj_param['store_id'], self.obj_param['page_data_id'], self.obj_param['port'])
+            elif self.obj_name == 'handle.website.subway.direct_report.SpreadReportDay':
+                self.obj = SpreadReportDay1(self.obj_param['store_id'], self.obj_param['page_data_id'], self.obj_param['port'])
             # ========================== 抓取页面实例配置 END ==========================
             else:
                 self.error = ErrorEnum.ERROR_9001
