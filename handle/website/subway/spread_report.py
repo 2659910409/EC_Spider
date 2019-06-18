@@ -3,7 +3,6 @@ from handle.err_message import ErrorEnum
 from common.private_logging import Logging
 from retry import retry
 import pandas as pd
-import re
 from service.page_data_service import PageDataService
 from handle.common.private_time import *
 
@@ -30,7 +29,6 @@ class SpreadReport(Base):
         self.web_driver.find_element_in_xpath('//*[@id="J_bpreport_dname_mx_1465"]').clear()
         self.web_driver.find_element_in_xpath('//*[@id="J_bpreport_dname_mx_1465"]').send_keys(file_name)
         self.web_driver.find_element_in_xpath('//*[@id="brix_brick_6587"]/ul/li[1]').click()
-
 
     def _locate_page(self):
         """
@@ -65,7 +63,7 @@ class SpreadReportBabyDay(SpreadReport):
             return False
         return True
 
-    def operation_page_down(self):
+    def operation_page_download(self):
         """
         下载报表,并读取数据
         """
@@ -78,12 +76,10 @@ class SpreadReportBabyDay(SpreadReport):
         for x in range(page_num):
             download_url = 'https://subway.simba.taobao.com/#!/report/bpreport/download' + '?page={}'.format(x)
             self.web_driver.get(download_url)
-            if 1:
-                pass
+            if self.web_driver.find_element_in_xpath(''):
+                self.web_driver.find_element_in_xpath('').click()
+                break
         self.wait_download_finish()
-        # df = pd.read_csv(cache_file_path)
-        # if df.shape[0] <= 0 or df.shape[1] <= 0:  # 需要判断表格中是否存在业务数据
-        #     print('下载的文件为空文件')
 
     def operation_data_process(self):
         """
@@ -92,46 +88,38 @@ class SpreadReportBabyDay(SpreadReport):
         """
         try:
             # 从数据库读取目标表的所有字段名
-            field_name_list = []
-            for x in self.page_data_columns:
-                field_name_list.append(x.check_col_name)
-            field_name_list.sort(reverse=True)
-            field_tuple = tuple(field_name_list)
-
-            self.page_data = PageDataService.set_file_column_flag(self.page_data, df.columns)
-            df.rename(columns={'日期': '_日期'}, inplace=True)  # 将原始的日期字段名更改
+            check_field_names = []  # 存储需要进行比对的字段名
+            db_field_names = []  # 存储数据库中表的所有字段名
+            default_add_field = []  # 存储默认需要添加的字段名
+            for data_tab_column in self.page_data.data_tabs[0].data_tab_columns:
+                if data_tab_column.check_col_name is not None:
+                    check_field_names.append(data_tab_column.check_col_name)
+                if data_tab_column.check_col_name is None:
+                    default_add_field.append(data_tab_column.col_name)
+                db_field_names.append(data_tab_column.col_name)
+            # check_field_names.sort(reverse=True)
             # 添加默认字段并赋值
-            df = pd.concat([df, pd.DataFrame(columns=self.default_field)], sort=False)
-            # TODO 从STORE 实例中获取
-            df['店铺id'] = self.store.store.id
-            df['店铺名'] = self.store.store_name
+            df = self.source_data_list[0]  # 取出读取到的data_frame
+            df = pd.concat([df, pd.DataFrame(columns=self.default_add_field)], sort=False)
+            df['店铺id'] = self.store.id
+            df['店铺名'] = self.store.name
             df['日期'] = df['_日期']
-            df['文件路径'] = self.store_name
-            # df['文件sheet'] = cache_file_name TODO shijun 变量未定义
+            df['文件路径'] = self.FILE_BACKUP_PATH
+            df['文件sheet'] = 'sheet'
             df['转化周期'] = '15天累计数据'
             df['报表类型'] = '宝贝'
-            df['入库时间'] = time.get_current_timestamp()
-            df['取数时间'] = time.get_current_timestamp()
-            cols_name = df.columns.tolist()
-            # 将不符合命名规则的字段名重命名
-            for col_name in cols_name:
-                col_name_new = re.sub(r'[\(\)]', '_', re.sub(r'\(%\)', '', col_name))
-                df.rename(columns={col_name: col_name_new}, inplace=True)
-            cols_name_new = df.columns.tolist()
+            df['入库时间'] = get_current_timestamp()
+            df['取数时间'] = get_current_timestamp()
+            file_col_names = df.columns.tolist()
             # 比较文件数据中的字段与数据库表中字段的差异
-            increase_field = list(set(cols_name_new) - set(field_name_list)) # 多出的字段需处理到告警信息中
-            reduce_field = list(set(field_name_list) - set(cols_name_new))
-            # 如果文件数据中的字段有减少,需要添加该字段,默认将该字段列赋空值
-            if reduce_field:
-                df = pd.concat([df, pd.DataFrame(columns=reduce_field)], sort=False)
-            df = df[field_name_list].sort_index(axis=1, ascending=False) # 将数据列按照列名降序排序
-            self.data = df
+            increase_field = list(set(file_col_names) - set(check_field_names))  # 多出的字段需处理到告警信息中
+            reduce_field = list(set(check_field_names) - set(file_col_names))
+            self.data_list.append(df)
         except Exception as e:
             Logging.error(e)
-            self.error = ErrorEnum.ERROR_5000
+            self.error = ErrorEnum.ERROR_5001
             return False
         return True
-
 
     def operation_data_input(self):
         """
@@ -140,14 +128,18 @@ class SpreadReportBabyDay(SpreadReport):
         :param df: 读取到的data_frame
         :return: True/False
         """
-        df = self.data
-        field_tuple = PageDataService.get_file_columns(self.page_data)
-        # row_cnt = df.shape[0]
-        col_cnt = df.shape[1]  # 取出data_frame列数
-        data_list = list(df.itertuples(index=False, name=None)) # 将data_frame每一行转化为元组放入列表中
-        insert_sql = "insert into {} {} values (%s{})".format(self.table_name, field_tuple, ',%s'*(col_cnt-1))
-        self.db(insert_sql, data_list)
-        self.db.commit()
+        try:
+            df = self.data
+            field_tuple = PageDataService.get_file_columns(self.page_data)
+            # row_cnt = df.shape[0]
+            col_cnt = df.shape[1]  # 取出data_frame列数
+            data_list = list(df.itertuples(index=False, name=None))  # 将data_frame每一行转化为元组放入列表中
+            insert_sql = "insert into {} {} values (%s{})".format(self.page_data.data_tabs[0].name, field_tuple, ',%s'*(col_cnt-1))
+            self.db.insert_many(insert_sql, data_list)
+            self.db.commit()
+        except Exception as e:
+            Logging.error(e)
+            self.error = ErrorEnum.ERROR_5002
 
     # def run(self):
     #     self.get_webdriver()

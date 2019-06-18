@@ -65,5 +65,7 @@ class ErrorEnum(Enum):
     ERROR_4000 = ErrorMsg('4000', '未知异常')
     # 取数-数据入库 5000-5999
     ERROR_5000 = ErrorMsg('5000', '未知异常')
+    ERROR_5001 = ErrorMsg('5001', '数据处理异常')
+    ERROR_5002 = ErrorMsg('5002', '数据入库异常')
     # 取数-数据备份 6000-6999
     ERROR_6000 = ErrorMsg('6000', '未知异常')
