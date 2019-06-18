@@ -90,30 +90,24 @@ class TaskController:
                 except Exception as e:
                     Logging.error(e)
                     self.error = ErrorEnum.ERROR_3000
-            elif self.obj_name.find('handle.website') == 0 and func == 'operation_page_download':
-                try:
-                    results = self.obj.operation_page_download()
-                except Exception as e:
-                    Logging.error(e)
-                    self.error = ErrorEnum.ERROR_4000
             elif self.obj_name.find('handle.website') == 0 and func == 'operation_data_process':
                 try:
                     results = self.obj.operation_data_process()
                 except Exception as e:
                     Logging.error(e)
-                    self.error = ErrorEnum.ERROR_5000
+                    self.error = ErrorEnum.ERROR_4000
             elif self.obj_name.find('handle.website') == 0 and func == 'operation_data_input':
                 try:
                     results = self.obj.operation_data_input()
                 except Exception as e:
                     Logging.error(e)
-                    self.error = ErrorEnum.ERROR_6000
+                    self.error = ErrorEnum.ERROR_5000
             elif self.obj_name.find('handle.website') == 0 and func == 'operation_data_backup':
                 try:
                     results = self.obj.operation_data_backup()
                 except Exception as e:
                     Logging.error(e)
-                    self.error = ErrorEnum.ERROR_7000
+                    self.error = ErrorEnum.ERROR_6000
             else:
                 self.error = ErrorEnum.ERROR_9002
                 self.error.value.set_msg(('未匹配到任务func name:'+self.obj_name+',func:'+func))

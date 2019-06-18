@@ -4,7 +4,7 @@ from handle.err_message import ErrorEnum
 from common.private_logging import Logging
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from handle.common import time
+from handle.common import private_time
 import os
 import shutil
 import zipfile
@@ -35,7 +35,6 @@ class Base:
             self.page = self.page_data.page
             self.db = DB()
             self.port = port
-            # TODO 需支持指定下载目录:self.store.name/self.page_data.name
             self.FILE_DOWNLOAD_PATH = setting.FILE_DOWNLOAD_PATH_PREFIX+'/'+self.store.name
             self.FILE_PROCESS_PATH = setting.FILE_PROCESS_PATH_PREFIX+'/'+self.store.name+'/'+self.page_data.name+'/'+self.page_data.data_update_freq
             self.FILE_BACKUP_PATH = setting.FILE_BACKUP_PATH_PREFIX+'/'+self.store.name+'/'+self.page_data.name+'/'+self.page_data.data_update_freq
@@ -49,6 +48,7 @@ class Base:
             # TODO 可配置变量
             file_prefix = ''
             self.clear_download_path(file_prefix)
+            # 初始化webdriver，判断是否已登录
             self.web_driver = None
             # 下载文件取数时需要
             # TODO 数据列表定义
@@ -105,7 +105,7 @@ class Base:
         2）是否有文件下载 TODO page_data 逻辑控制
         3）文件是否下载完成
         4）文件下载完成后迁移
-        5）读取文件内容返回数据,读取文件内容存储：self.source_datas
+        5）读取文件内容返回数据,读取文件内容存储：self.source_data_list
         :return: True/False
         """
         return True
@@ -133,16 +133,14 @@ class Base:
         目前只针对下载文件 进行数据备份（针对文件下载类取数）
         :return: True/False
         """
-        # TODO self.file_process_path_suffix 文件目录规则
+        # TODO self.file_path_suffix 文件目录规则
         for file_name in self.get_file_names():
-            if self.self.file_process_path_suffix is None:
+            if self.self.file_path_suffix is None:
                 shutil.move(os.path.join(self.FILE_PROCESS_PATH, file_name), os.path.join(self.FILE_BACKUP_PATH, file_name))
                 print("move %s -> %s" % (os.path.join(self.FILE_PROCESS_PATH, file_name), os.path.join(self.FILE_BACKUP_PATH, file_name)))
             else:
                 process_path = self.FILE_PROCESS_PATH + '/' + str(self.file_path_suffix)
                 backup_path = self.FILE_BACKUP_PATH + '/' + str(self.file_path_suffix)
-                if not os.path.exists(process_path):
-                    os.makedirs(process_path)
                 if not os.path.exists(backup_path):
                     os.makedirs(backup_path)
                 shutil.move(os.path.join(process_path, file_name), os.path.join(backup_path, file_name))
@@ -195,27 +193,25 @@ class Base:
         :param file_prefix:
         :return:
         """
-        timeout_num = 180 # 文件下载超时3分组
-        _file_name = None
+        # 文件下载超时3分钟
+        timeout_num = 180
         while timeout_num >= 0:
             files = os.listdir(self.FILE_DOWNLOAD_PATH)
             for file in files:
                 file_path = os.path.join(self.FILE_DOWNLOAD_PATH, file)
                 # 文件下载中，文件后缀
                 if '.crdownload' in file or '.tmp' in file:
-                    time.sleep(1)
+                    private_time.time.sleep(1)
                     timeout_num = timeout_num - 1
                     continue
                 # 匹配到的文件数量
                 match_file_cnt = 0
                 if file_prefix is None and os.path.isfile(file_path):
                     match_file_cnt = match_file_cnt+1
-                    _file_name = file
                 elif file.find(file_prefix) == 0 and os.path.isfile(file_path):
                     match_file_cnt = match_file_cnt + 1
-                    _file_name = file
                 if match_file_cnt == 0:
-                    time.sleep(1)
+                    private_time.time.sleep(1)
                     timeout_num = timeout_num - 1
                     continue
                 elif match_file_cnt == 1:
@@ -239,7 +235,7 @@ class Base:
                     self.source_data_list.append(pd.read_excel(remote_path))
                     return True
                 else:
-                    raise Exception('文件未匹配')
+                    raise Exception('文件下载失败')
         return False
 
     def unzip(self, cache_path, cache_file_path):

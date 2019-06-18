@@ -1,5 +1,5 @@
 from handle.website.base import Base
-from handle.common import time
+from handle.common import private_time as time
 
 
 class Flow(Base):
@@ -16,7 +16,26 @@ class Flow(Base):
         base_url = "https://sycm.taobao.com/cc/item_archives?activeKey=flow&dateRange={}|{}&dateType={}&itemId={}"
         target_url = base_url.format(start_date, end_date, date_type, item_id)
         self.driver.get(target_url)
+        # 等待页面加载完成
         time.sleep(5)
+
+    def operation_data_process(self):
+        df = None
+        for data in self.get_source_data_list():
+            # TODO data公共列增加
+            # TODO 字段类型转换
+            if df is None:
+                df = data
+            else:
+                df = df.merge(data)
+        self.data_list.append(df)
+
+    def operation_data_input(self):
+        # TODO 字段匹配入库
+        self.get_data()
+
+
+class FlowDay(Flow):
 
     def operation_page(self):
         start_date = time.get_yesterday()
@@ -34,18 +53,22 @@ class Flow(Base):
             # 等待文件下载完成
             self.wait_download_finish(file_prefix, file_path_suffix)
 
-    def operation_data_process(self):
-        df = None
-        for data in self.get_source_data_list():
-            # TODO data公共列增加
-            # TODO 字段类型转换
-            if df is None:
-                df = data
-            else:
-                df = df.merge(data)
-        self.data_list.append(df)
 
-    def operation_data_input(self):
-        # TODO 字段匹配入库
-        self.get_data()
+class FlowMonth(Flow):
 
+    def operation_page(self):
+        # TODO
+        start_date = None
+        end_date = None
+        date_type = 'month'
+        item_ids = []
+        for item_id in item_ids:
+            self._operation_page_load(start_date, end_date, date_type, item_id)
+            # 点击下载按钮
+            self.driver.find_element_by_xpath('//*[@id="op-cc-item-archives-flow-flow-origin"]/div[1]/div[1]/div[2]/a/span').click()
+            # TODO 可配置变量
+            file_prefix = ''
+            # 保存文件目录规则
+            file_path_suffix = item_id
+            # 等待文件下载完成
+            self.wait_download_finish(file_prefix, file_path_suffix)
