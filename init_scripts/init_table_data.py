@@ -6,7 +6,7 @@ import numpy as np
 if __name__ == '__main__':
     # 读取所有excel配置文件
     t_store = pd.read_excel('D:/py3_project/EC_Spider/init_scripts/INIT_TABLE_DATA/t_store.xlsx')
-    t_store = t_store.where(t_store.notnull(), None)
+    t_store = t_store.where(t_store.notnull(), None)  # 将data_frame中所有Nan值转化为None,Nan无法插入数据库
     t_store_property = pd.read_excel('D:/py3_project/EC_Spider/init_scripts/INIT_TABLE_DATA/t_store_property.xlsx')
     t_store_property = t_store_property.where(t_store_property.notnull(), None)
     t_page = pd.read_excel('D:/py3_project/EC_Spider/init_scripts/INIT_TABLE_DATA/t_page.xlsx')
@@ -20,7 +20,7 @@ if __name__ == '__main__':
     t_data_tab_column = pd.read_excel('D:/py3_project/EC_Spider/init_scripts/INIT_TABLE_DATA/t_data_tab_column.xlsx')
     t_data_tab_column = t_data_tab_column.where(t_data_tab_column.notnull(), None)
     # 遍历获取store批次数据
-    t_store_list = np.array(t_store).tolist()
+    t_store_list = np.array(t_store).tolist()  # 将data_frame转换为二维数组
     t_page_list = np.array(t_page).tolist()
     for store in t_store_list:
         t_store_property_list = np.array(t_store_property[t_store_property['store_name'] == store[0]].iloc[:, 1:]).tolist()
