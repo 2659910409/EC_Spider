@@ -47,12 +47,12 @@ def get_last_month_date(date):
     return start_date, end_date
 
 
-def date_to_string(date_time):
+def date_to_string(date_time, fmt):
     """
     :param date_time: 日期或时间戳类型
     :return: 日期格式为YYYY-MM-DD的字符串
     """
-    date_str = date_time.strftime('%Y-%m-%d')
+    date_str = date_time.strftime(fmt)
     return date_str
 
 
@@ -65,8 +65,16 @@ def string_to_date(string, fmt):
     date = datetime.datetime.strptime(string, fmt).date()
     return date
 
+def get_day_report_rule1(date):
+    """
+    获取日报的开始日期和结束日期
+    :return:当前日期的前15日为开始日期,当前日期的前1日为结束日期
+    """
+    start_date = add_day(get_current_date(), -1)
+    end_date = add_day(get_current_date(), -15)
+    return start_date, end_date
 
-def get_day_report_rule(date):
+def get_day_report_rule2(date):
     """
     获取日报的开始日期和结束日期
     :return:当前日期前一个月份的开始日期与当前日期
@@ -87,4 +95,5 @@ def get_month_report_rule(date):
     start_date = add_month(date, -1).replace(day=1)
     end_date = add_day(date.replace(day=1), -1)
     return start_date, end_date
+
 

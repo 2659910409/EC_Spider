@@ -100,6 +100,3 @@ class DB:
             self.end('rollback')
         self.db_cur.close()
         self.db_conn.close()
-        DB.__pool = None
-
-

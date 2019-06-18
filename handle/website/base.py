@@ -242,7 +242,7 @@ class Base:
                     raise Exception('文件未匹配')
         return False
 
-    def wait_unzip_finish(self, cache_path, cache_file_path):
+    def unzip(self, cache_path, cache_file_path):
         """
         对压缩文件解压缩
         :param cache_path:
