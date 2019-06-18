@@ -112,7 +112,8 @@ class SpreadReportBabyDay(SpreadReport):
             df['取数时间'] = get_current_timestamp()
             file_col_names = df.columns.tolist()
             # 比较文件数据中的字段与数据库表中字段的差异
-            increase_field = list(set(file_col_names) - set(check_field_names))  # 多出的字段需处理到告警信息中
+            # 多出或者减少的字段需处理到告警信息中
+            increase_field = list(set(file_col_names) - set(check_field_names))
             reduce_field = list(set(check_field_names) - set(file_col_names))
             self.data_list.append(df)
         except Exception as e:
@@ -129,46 +130,12 @@ class SpreadReportBabyDay(SpreadReport):
         :return: True/False
         """
         try:
-            df = self.data
-            field_tuple = PageDataService.get_file_columns(self.page_data)
-            # row_cnt = df.shape[0]
-            col_cnt = df.shape[1]  # 取出data_frame列数
+            df = self.data_list[0]
+            file_col_names = tuple(df.columns.tolist())
             data_list = list(df.itertuples(index=False, name=None))  # 将data_frame每一行转化为元组放入列表中
-            insert_sql = "insert into {} {} values (%s{})".format(self.page_data.data_tabs[0].name, field_tuple, ',%s'*(col_cnt-1))
+            insert_sql = "insert into {} {} values (%s{})".format(self.page_data.data_tabs[0].name, file_col_names, ',%s'*(df.shape[1]-1))
             self.db.insert_many(insert_sql, data_list)
             self.db.commit()
         except Exception as e:
             Logging.error(e)
             self.error = ErrorEnum.ERROR_5002
-
-    # def run(self):
-    #     self.get_webdriver()
-    #     self._locate_page()
-    #     self.operation_page()
-    #     field_tuple, df = self.operation_data_process()
-    #     self.operation_data_input(field_tuple, df)
-    #     self.operation_data_backup()
-
-
-class SpreadReportMonth(SpreadReport):
-    @retry(tries=3, delay=2)
-    def operation_page(self):
-        """
-        :param url: 指定抓取页面的url
-        :param num: 转化周期筛选
-        :param report_type: 报表类型,目前支持日报'day',月报'month',及自定义日期区间的报表
-        :param start_date: 日期区间的开始日期,需自定义日期报表时指定
-        :param end_date: 日期区间的结束日期,需自定义日期报表时指定
-        :return: True/False
-        """
-        symbol = False
-        start_date = time.get_last_month_date(time.get_current_date())[0]
-        end_date = time.date_add(time.get_current_date(), -1)
-        # 多条件筛选
-        self._operator_period_control(self.period)
-        self._operator_time_control(start_date, end_date)
-        self._operator_point_control()
-        # 取数
-        self.web_driver.find_element_in_xpath('').text
-        symbol = True
-        return symbol
