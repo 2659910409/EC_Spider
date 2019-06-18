@@ -96,5 +96,5 @@ if __name__ == '__main__':
     worker_task_run()
     # 增量初始化任务执行
     worker_task_added()
-    # worker_task_finish()
+    worker_task_finish()
     worker_task_run()
