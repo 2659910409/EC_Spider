@@ -61,6 +61,7 @@ class ErrorEnum(Enum):
     ERROR_3000 = ErrorMsg('3000', '未知异常')
     ERROR_3001 = ErrorMsg('3001', '页面请求失败')
     ERROR_3002 = ErrorMsg('3002', '控件操作失败')
+    ERROR_3003 = ErrorMsg('3003', '文件下载失败')
     # 取数-数据处理 4000-4999
     ERROR_4000 = ErrorMsg('4000', '未知异常')
     # 取数-数据入库 5000-5999

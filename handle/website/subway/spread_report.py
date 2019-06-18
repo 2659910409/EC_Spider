@@ -60,27 +60,22 @@ class SpreadReportBabyDay(SpreadReport):
         except Exception as e:
             Logging.error(e)
             self.error = ErrorEnum.ERROR_3002
-            return False
-        return True
-
-    def operation_page_download(self):
-        """
-        下载报表,并读取数据
-        """
-        # 读取文件并解析
-        # 等待 todo
-        download_url = 'https://subway.simba.taobao.com/#!/report/bpreport/download'
-        self.web_driver.get(download_url)
-        # 获取总页数
-        page_num = self.web_driver.find_element_in_xpath('//*[@id="brix_brick_291"]/div[2]/div[2]/span[2]').text
-        for x in range(page_num):
-            download_url = 'https://subway.simba.taobao.com/#!/report/bpreport/download' + '?page={}'.format(x)
+        try:
+            download_url = 'https://subway.simba.taobao.com/#!/report/bpreport/download'
             self.web_driver.get(download_url)
-            if self.web_driver.find_element_in_xpath(''):
-                self.web_driver.find_element_in_xpath('').click()
-                time.sleep(5)
-                break
-        self.wait_download_finish()
+            # 获取总页数
+            page_num = self.web_driver.find_element_in_xpath('//*[@id="brix_brick_291"]/div[2]/div[2]/span[2]').text
+            for x in range(page_num):
+                download_url = 'https://subway.simba.taobao.com/#!/report/bpreport/download' + '?page={}'.format(x)
+                self.web_driver.get(download_url)
+                if self.web_driver.find_element_in_xpath(''):
+                    self.web_driver.find_element_in_xpath('').click()
+                    time.sleep(5)
+                    break
+            self.wait_download_finish()
+        except Exception as e:
+            Logging.error(e)
+            self.error = ErrorEnum.ERROR_3003
 
     def operation_data_process(self):
         """
