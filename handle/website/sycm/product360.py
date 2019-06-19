@@ -19,7 +19,7 @@ class Flow(Base):
         target_url = base_url.format(start_date, end_date, date_type, item_id)
         self.driver.get(target_url)
         # 等待页面加载完成
-        Time.sleep(5)
+        Time.sleep(6)
 
     def operation_data_process(self):
         if self.page_data.is_multiple_data():
@@ -34,11 +34,12 @@ class Flow(Base):
             data_cols = [] # 数据表title
             data_list = [] # 数据表内容
             for index, row in source_data.T.iteritems():
+                values = row.values
                 if get_data_flag:
-                    data_list.append(row)
-                if row[0] == 'start_position':
+                    data_list.append(values)
+                if values[0] == start_position:
                     get_data_flag = True
-                    data_cols = row
+                    data_cols = values
             if len(data_list) == 0:
                 Logging.warning('无数据！')
                 return True
@@ -51,8 +52,8 @@ class Flow(Base):
             data_col_ind = []
             for col in conf_check_columns:
                 if col in data_cols:
-                    intersection_col.append(col)
                     data_col_ind.append(data_cols.index(col))
+                    intersection_col.append(col)
             for d in data_list:
                 _row = []
                 for ind in data_col_ind:
@@ -114,17 +115,16 @@ class FlowDay(Flow):
         start_date = get_yesterday()
         end_date = start_date
         date_type = 'day'
-        item_id = '551562733140'
+        # item_id = '551562733140'
+        item_id = '546299843179'
         self._operation_page_load(start_date, end_date, date_type, item_id)
         # 点击下载按钮
         self.driver.find_element_by_xpath('//*[@id="op-cc-item-archives-flow-flow-origin"]/div[1]/div[1]/div[2]/a/span').click()
-        # 文件匹配前缀，不需要设置
-        self.page_data.rule_read_file_prefix = '【生意参谋平台】无线商品二级流量来源详情'
         # 等待文件下载完成
         self.data_dimension_dict['{item_id}'] = item_id # 商品id特殊处理
         self.wait_download_finish()
         # 维护商品id字段
-        self.source_data_list[0]['商品id'] == item_id # 商品id特殊处理
+        self.source_data_list[0]['商品id'] = item_id # 商品id特殊处理
 
 
 class FlowMonth(Flow):
@@ -144,7 +144,7 @@ class FlowMonth(Flow):
         data_dimension_dict = {'{item_id}': item_id}
         self.wait_download_finish(data_dimension_dict)
         # 维护商品id字段
-        self.source_data_list[0]['商品id'] == item_id
+        df = self.source_data_list[0]['商品id'] = item_id
 
 
 if __name__ == '__main__':
