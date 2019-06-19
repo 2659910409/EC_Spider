@@ -50,9 +50,11 @@ class Base:
             self.driver = None
             self.init_web_driver()
             self.check_store_login()
+            # 数据维度字典
+            self.data_dimension_dict = {}
             # 下载文件取数时需要
-            # TODO 数据列表定义
             self.file_names = []
+            # TODO 数据列表定义
             self.source_data_list = []
             self.data_list = []
         except Exception as e:
@@ -200,7 +202,7 @@ class Base:
                     os.remove(file_path)
                     print('清空文件夹 remove:', file_path)
 
-    def wait_download_finish(self, data_dimension_dict={}, file_type=None):
+    def wait_download_finish(self, file_type=None):
         """
         根据文件前缀规则匹配，文件是否下载完成
         :param file_type:
@@ -234,8 +236,8 @@ class Base:
                     file_process_path = self.FILE_PROCESS_PATH
                 else:
                     path_suffix = self.page_data.rule_save_path_suffix
-                    for key in data_dimension_dict.key():
-                        path_suffix = path_suffix.replace(key, data_dimension_dict[key])
+                    for key in self.data_dimension_dict.key():
+                        path_suffix = path_suffix.replace(key, self.data_dimension_dict[key])
                     file_process_path = self.FILE_PROCESS_PATH+'/'+path_suffix
                     if not os.path.exists(file_process_path):
                         os.makedirs(file_process_path)
@@ -283,3 +285,71 @@ class Base:
         else:
             print('解压出多个文件')
         return symbol
+
+    def str_to_char(self, string):
+        """
+        字符串转字符
+        :param string:
+        :return:
+        """
+        _string = str(string)
+        if not _string:
+            return ''
+        _string = _string.strip()
+        if _string == '' or _string == '-':
+            return ''
+        return _string
+
+    def str_to_int(self, string):
+        """
+        字符串转整型
+        :param string:
+        :return: int类型
+        """
+        _string = str(string)
+        if not _string:
+            return 0
+        _string = _string.strip()
+        _string = _string.replace(',', '')
+        if _string.strip() == '' or _string.strip() == '-':
+            return 0
+        if '%' in _string:
+            _string = _string.replace('%', '')
+            _string = round(int(_string) / 100)
+        return int(_string)
+
+    def str_to_float(self, string):
+        """
+        字符串转浮点型
+        :param string:
+        :return: float类型
+        """
+        _string = str(string)
+        if not _string:
+            return 0.0
+        _string = _string.strip()
+        _string = _string.replace(',', '')
+        if _string.strip() == '' or _string.strip() == '-':
+            return 0.0
+        if '%' in _string:
+            _string = _string.replace('%', '')
+            _string = round(float(_string) / 100)
+        return float(_string)
+
+    def gen_data_maintenane_condition(self, tab, df):
+        """
+        根据配置与数据，生成数据维护条件
+        :param tab:
+        :param df:
+        :return:
+        """
+        return ''
+
+    def gen_data_insert_values(self, tab, df):
+        """
+
+        :param tab:
+        :param df:
+        :return:
+        """
+        return ''

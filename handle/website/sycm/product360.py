@@ -56,9 +56,19 @@ class Flow(Base):
             for d in data_list:
                 _row = []
                 for ind in data_col_ind:
-                    _row.append(d[ind])
+                    col_name = intersection_col[ind]
+                    col_val = d[ind]
+                    if col_name in ['int', 'bigint', 'int32', 'int64', 'tinyint', 'integer']:
+                        _col_val = self.str_to_int(col_val)
+                    elif col_name in ['float', 'numeric', 'decimal', 'double']:
+                        _col_val = self.str_to_float(col_val)
+                    elif col_name in ['varchar', 'string']:
+                        _col_val = self.str_to_int(col_val)
+                    else:
+                        _col_val = col_val
+                    _row.append(_col_val)
                 _data.append(_row)
-            # 数据列校验
+            # 数据列校验, TODO 监控告警
             tmp_surplus = list(set(data_cols) - set(conf_columns)) # 新增字段/列
             tmp_defect = list(set(conf_columns) - set(data_cols)) # 缺少字段/列
             Logging.warning('字段列匹配，原始字段列表：', data_cols) if len(tmp_surplus+tmp_defect) > 0 else None
@@ -68,20 +78,34 @@ class Flow(Base):
             # DataFrame生成
             import pandas as pd
             df = pd.DataFrame(_data, columns=intersection_col)
-            # TODO data公共列增加
+            # TODO 公共列增加
             df['店铺id'] = self.store.id
             df['店铺'] = self.store.name
             df['日期'] = get_yesterday()
             df['取数时间'] = get_current_date('%Y-%m-%d %H:%M:%S')
             df['入库时间'] = get_current_date('%Y-%m-%d %H:%M:%S')
-            # TODO 字段类型转换
-
-            cols = self.page_data.data_tabs[0].get_tab_columns()
-            # TODO filename，对应item_id ?
+            self.data_list.append(df)
 
     def operation_data_input(self):
-        # TODO 字段匹配入库
-        self.get_data()
+        # TODO 匹配字段入库
+        if self.page_data.is_multiple_data():
+            # TODO 多个，待完善
+            self.get_data_list()
+            pass
+        else:
+            df = self.get_data()
+            tab = self.page_data.data_tabs[0]
+            # del_condition 删除条件拼接: 店铺id = '1' and 日期 = '2019-06-18'
+            del_condition = self.gen_data_maintenane_condition(tab, df)
+            del_sql = 'DELETE FROM {} WHERE {};'.format(tab.name, del_condition)
+            # cols_part 字段列表拼接: id,name
+            cols_part = ','.join(df.columns)
+            # data_part 数据列表拼接: (1,'zhangsan'),(2,'lisi'),(3,'wangwu')
+            data_part = self.gen_data_insert_values(tab, df)
+            insert_sql = 'INSERT INTO {} ({}) VALUES {};'.format(tab.name, cols_part, data_part)
+            self.db.execute(del_sql)
+            self.db.execute(insert_sql)
+            self.db.commit()
 
 
 class FlowDay(Flow):
@@ -97,10 +121,10 @@ class FlowDay(Flow):
         # 文件匹配前缀，不需要设置
         self.page_data.rule_read_file_prefix = '【生意参谋平台】无线商品二级流量来源详情'
         # 等待文件下载完成
-        data_dimension_dict = {'{item_id}': item_id}
-        self.wait_download_finish(data_dimension_dict)
+        self.data_dimension_dict['{item_id}'] = item_id # 商品id特殊处理
+        self.wait_download_finish()
         # 维护商品id字段
-        self.source_data_list[0]['商品id'] == item_id
+        self.source_data_list[0]['商品id'] == item_id # 商品id特殊处理
 
 
 class FlowMonth(Flow):
