@@ -30,8 +30,7 @@ def get_yesterday():
 def get_time():
     return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
-
-def get_current_date(fmt):
+def get_current_date_format(fmt):
     return time.strftime(fmt, time.localtime())
 
 

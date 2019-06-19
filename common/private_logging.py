@@ -59,4 +59,4 @@ class Logging:
 
 if __name__ == '__main__':
     Logging.info(1, 2, 3, '你好')
-    Logging.error(1, 2, 3, '你好')
+    Logging.error(1, 2, 4, '你好')

@@ -104,7 +104,7 @@ class Base:
         """
         页面操作含取数，获取：self.source_data/self.file_names
         1) 页面操作
-        2）是否有文件下载 TODO page_data 逻辑控制
+        2）是否有文件下载
         3）文件是否下载完成
         4）文件下载完成后迁移
         5）读取文件内容返回数据,读取文件内容存储：self.source_data_list
@@ -116,10 +116,10 @@ class Base:
         """
         数据处理
         1） 数据格式转换
-        2） 数据列类型转换
+        2） 数据列类型转换:self.data_list
         :return: True/False
         """
-        self.data = self.source_data
+        self.data_list = self.source_data_list
         return True
 
     def operation_data_input(self):
@@ -135,7 +135,8 @@ class Base:
         目前只针对下载文件 进行数据备份（针对文件下载类取数）
         :return: True/False
         """
-        # TODO self.file_path_suffix 文件目录规则
+        if self.page_data.is_file_download():
+            return True
         for file_name in self.get_file_names():
             if self.self.file_path_suffix is None:
                 shutil.move(os.path.join(self.FILE_PROCESS_PATH, file_name), os.path.join(self.FILE_BACKUP_PATH, file_name))
@@ -211,6 +212,8 @@ class Base:
         # 文件下载超时3分钟
         timeout_num = 180
         while timeout_num >= 0:
+            # 匹配到的文件数量
+            match_file_cnt = 0
             files = os.listdir(self.FILE_DOWNLOAD_PATH)
             for file in files:
                 file_path = os.path.join(self.FILE_DOWNLOAD_PATH, file)
@@ -219,7 +222,6 @@ class Base:
                     Time.sleep(1)
                     timeout_num = timeout_num - 1
                     continue
-                # 匹配到的文件数量
                 match_file_cnt = 0
                 if self.page_data.rule_read_file_prefix is None and os.path.isfile(file_path):
                     match_file_cnt = match_file_cnt+1
@@ -236,7 +238,7 @@ class Base:
                     file_process_path = self.FILE_PROCESS_PATH
                 else:
                     path_suffix = self.page_data.rule_save_path_suffix
-                    for key in self.data_dimension_dict.key():
+                    for key in self.data_dimension_dict.keys():
                         path_suffix = path_suffix.replace(key, self.data_dimension_dict[key])
                     file_process_path = self.FILE_PROCESS_PATH+'/'+path_suffix
                     if not os.path.exists(file_process_path):

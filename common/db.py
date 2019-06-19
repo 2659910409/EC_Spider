@@ -1,4 +1,4 @@
-import pymssql
+# import pymssql
 import pymysql
 from DBUtils.PooledDB import PooledDB
 import setting
@@ -24,10 +24,10 @@ class DataBase:
 
     @staticmethod
     def __get_conn(cls):
-        __pool = PooledDB(creator=cls, host=setting.database_data_host, mincached=2, maxcached=20,
-                                 port=setting.database_data_port, user=setting.database_data_user,
-                                 passwd=setting.database_data_passwd, db=setting.database_data_db_name,
-                                 charset=setting.database_data_charset).connection()
+        __pool = PooledDB(creator=cls, host=setting.database_system_host, mincached=2, maxcached=20,
+                                 port=setting.database_system_port, user=setting.database_system_user,
+                                 passwd=setting.database_system_passwd, db=setting.database_system_db_name,
+                                 charset=setting.database_system_charset).connection()
         return __pool
 
     def query(self, sql):

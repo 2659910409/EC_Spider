@@ -11,7 +11,7 @@ database_system_db_name = 'ec_spider'
 database_system_port = 3306
 database_system_charset = 'utf8'
 
-database_data_host = 'localhost'
+database_data_host = '172.16.50.75'
 database_data_user = 'root'
 database_data_passwd = '123456'
 database_data_db_name = 'ec_data'

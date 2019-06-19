@@ -19,7 +19,7 @@ class Flow(Base):
         target_url = base_url.format(start_date, end_date, date_type, item_id)
         self.driver.get(target_url)
         # 等待页面加载完成
-        Time.sleep(5)
+        Time.sleep(6)
 
     def operation_data_process(self):
         if self.page_data.is_multiple_data():
@@ -34,11 +34,12 @@ class Flow(Base):
             data_cols = [] # 数据表title
             data_list = [] # 数据表内容
             for index, row in source_data.T.iteritems():
+                values = row.values
                 if get_data_flag:
-                    data_list.append(row)
-                if row[0] == 'start_position':
+                    data_list.append(values)
+                if values[0] == start_position:
                     get_data_flag = True
-                    data_cols = row
+                    data_cols = values
             if len(data_list) == 0:
                 Logging.warning('无数据！')
                 return True
@@ -51,8 +52,8 @@ class Flow(Base):
             data_col_ind = []
             for col in conf_check_columns:
                 if col in data_cols:
-                    intersection_col.append(col)
                     data_col_ind.append(data_cols.index(col))
+                    intersection_col.append(col)
             for d in data_list:
                 _row = []
                 for ind in data_col_ind:
@@ -114,17 +115,16 @@ class FlowDay(Flow):
         start_date = get_yesterday()
         end_date = start_date
         date_type = 'day'
-        item_id = '551562733140'
+        # item_id = '551562733140'
+        item_id = '546299843179'
         self._operation_page_load(start_date, end_date, date_type, item_id)
         # 点击下载按钮
         self.driver.find_element_by_xpath('//*[@id="op-cc-item-archives-flow-flow-origin"]/div[1]/div[1]/div[2]/a/span').click()
-        # 文件匹配前缀，不需要设置
-        self.page_data.rule_read_file_prefix = '【生意参谋平台】无线商品二级流量来源详情'
         # 等待文件下载完成
         self.data_dimension_dict['{item_id}'] = item_id # 商品id特殊处理
         self.wait_download_finish()
         # 维护商品id字段
-        self.source_data_list[0]['商品id'] == item_id # 商品id特殊处理
+        self.source_data_list[0]['商品id'] = item_id # 商品id特殊处理
 
 
 class FlowMonth(Flow):
@@ -144,12 +144,14 @@ class FlowMonth(Flow):
         data_dimension_dict = {'{item_id}': item_id}
         self.wait_download_finish(data_dimension_dict)
         # 维护商品id字段
-        self.source_data_list[0]['商品id'] == item_id
+        df = self.source_data_list[0]['商品id'] = item_id
 
 
 if __name__ == '__main__':
     # step1：cmd运行命令行，执行如下
-    # "chrome.exe" --profile-directory="Profile 1001" --remote-debugging-port=9000 --user-data-dir="C:/Users/jjshi/Downloads/chrome_user/1001"
+    # 测试店铺1 端口9000：chrome.exe --profile-directory="Profile 1020" --remote-debugging-port=9000 --user-data-dir="C:/RPAData/chrome_user/1020_LP" --start-maximized https://sycm.taobao.com/custom/login.htm
+    # 测试店铺2 端口9001：chrome.exe --profile-directory="Profile 1021" --remote-debugging-port=9001 --user-data-dir="C:/RPAData/chrome_user/1021_KS" - -start - maximized https: // sycm.taobao.com / custom / login.htm
+    # shijun: "chrome.exe" --profile-directory="Profile 1001" --remote-debugging-port=9000 --user-data-dir="C:/Users/jjshi/Downloads/chrome_user/1001"
     # step2：浏览器输入生意参谋url，并登录生意参谋成功**
     # url：https://sycm.taobao.com/portal/home.htm
     # step3：启动python程序，可进行取数开发
@@ -158,9 +160,9 @@ if __name__ == '__main__':
     port = 9000
     # step3.1：任务初始化（统一操作）
     flow_day = FlowDay(store_id, page_data_id, port)
-    # step3.2：页面操作、下载文件、读取文件内容（定制开发）
+    # step3.2：页面操作、下载文件、读取文件内容（定制开发）,维度：self.source_data_list
     flow_day.operation_page()
-    # step3.3：数据处理（定制开发）
+    # step3.3：数据处理（定制开发），维护：self.data_list
     flow_day.operation_data_process()
     # step3.4：数据入库（统一操作）
     flow_day.operation_data_input()
