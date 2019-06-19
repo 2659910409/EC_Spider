@@ -149,7 +149,9 @@ class FlowMonth(Flow):
 
 if __name__ == '__main__':
     # step1：cmd运行命令行，执行如下
-    # "chrome.exe" --profile-directory="Profile 1001" --remote-debugging-port=9000 --user-data-dir="C:/Users/jjshi/Downloads/chrome_user/1001"
+    # 测试店铺1 端口9000：chrome.exe --profile-directory="Profile 1020" --remote-debugging-port=9000 --user-data-dir="C:/RPAData/chrome_user/1020_LP" --start-maximized https://sycm.taobao.com/custom/login.htm
+    # 测试店铺2 端口9001：chrome.exe --profile-directory="Profile 1021" --remote-debugging-port=9001 --user-data-dir="C:/RPAData/chrome_user/1021_KS" - -start - maximized https: // sycm.taobao.com / custom / login.htm
+    # shijun: "chrome.exe" --profile-directory="Profile 1001" --remote-debugging-port=9000 --user-data-dir="C:/Users/jjshi/Downloads/chrome_user/1001"
     # step2：浏览器输入生意参谋url，并登录生意参谋成功**
     # url：https://sycm.taobao.com/portal/home.htm
     # step3：启动python程序，可进行取数开发
@@ -158,9 +160,9 @@ if __name__ == '__main__':
     port = 9000
     # step3.1：任务初始化（统一操作）
     flow_day = FlowDay(store_id, page_data_id, port)
-    # step3.2：页面操作、下载文件、读取文件内容（定制开发）
+    # step3.2：页面操作、下载文件、读取文件内容（定制开发）,维度：self.source_data_list
     flow_day.operation_page()
-    # step3.3：数据处理（定制开发）
+    # step3.3：数据处理（定制开发），维护：self.data_list
     flow_day.operation_data_process()
     # step3.4：数据入库（统一操作）
     flow_day.operation_data_input()
