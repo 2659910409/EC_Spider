@@ -50,6 +50,7 @@ class DataBase:
         return key
 
     def delete(self, sql):
+        Logging.info('db.delete sql:', sql)
         self.db_cur.execute(sql)
 
     def insert_many(self, sql, data_list):

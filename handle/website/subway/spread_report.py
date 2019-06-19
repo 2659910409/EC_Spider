@@ -28,7 +28,6 @@ class SpreadReport(Base):
         self.driver.find_element_in_xpath('//*[@id="J_bpreport_dname_mx_1465"]').send_keys(file_name)
         self.driver.find_element_in_xpath('//*[@id="brix_brick_6587"]/ul/li[1]').click()
 
-
     def _locate_page(self):
         """
         定位到指定取数的页面
@@ -64,11 +63,12 @@ class SpreadReportBabyDay(SpreadReport):
             self.web_driver.get(download_url)
             # 获取总页数
             page_num = self.web_driver.find_element_in_xpath('//*[@id="brix_brick_291"]/div[2]/div[2]/span[2]').text
+            file_name = self.page_data.name + date_to_string(get_current_timestamp(), '%Y%m%d%H%M%S')
             for x in range(page_num):
                 download_url = 'https://subway.simba.taobao.com/#!/report/bpreport/download' + '?page={}'.format(x)
                 self.web_driver.get(download_url)
-                if self.web_driver.find_element_in_xpath(''):
-                    self.web_driver.find_element_in_xpath('').click()
+                if self.web_driver.find_element_in_xpath('//*[@id="brix_brick_334"]/tbody//td[contain(text(), "{}")]'.format(file_name)):
+                    self.web_driver.find_element_in_xpath('//*[@id="brix_brick_334"]/tbody//td[contains(text(), "{}")]/../td/a[contains(@class, "mr10")]'.format(file_name)).click()
                     time.sleep(5)
                     break
             self.wait_download_finish()

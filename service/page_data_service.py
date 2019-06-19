@@ -61,7 +61,7 @@ class PageDataService:
                 page_data_confs.append(PageDataConfEntity(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]))
             return page_data_confs
         else:
-            Logging.error('不存在该page_data_id:', page_data_id)
+            Logging.warning('不存在该page_data_id:', page_data_id)
 
     def add_page_data(self, page_id, name, status, data_source_type, data_update_freq, data_update_time, rule_read_file_prefix, rule_save_path_suffix, data_tabs, page_data_confs=None):
         """
