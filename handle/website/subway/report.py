@@ -1,7 +1,7 @@
 from handle.website.base import Base
 from handle.err_message import ErrorEnum
 from common.private_logging import Logging
-from handle.common import time
+from common.util_time import time
 from retry import retry
 import pandas as pd
 import re
@@ -16,11 +16,11 @@ class SpreadReport(Base):
         :param end_date: 日期区间的结束日期,需自定义日期报表时指定
         :return: True/False
         """
-        self.web_driver.find_element_in_xpath('//*[@id="mx_423"]').clear()
-        self.web_driver.find_element_in_xpath('//*[@id="mx_423"]').send_keys(time.date_to_string(start_date))
-        self.web_driver.find_element_in_xpath('//*[@id="mx_423"]').clear()
-        self.web_driver.find_element_in_xpath('//*[@id="mx_423"]').send_keys(time.date_to_string(end_date))
-        self.web_driver.find_element_in_xpath('//*[@id="mx_423"]').click()
+        self.driver.find_element_in_xpath('//*[@id="mx_423"]').clear()
+        self.driver.find_element_in_xpath('//*[@id="mx_423"]').send_keys(time.date_to_string(start_date))
+        self.driver.find_element_in_xpath('//*[@id="mx_423"]').clear()
+        self.driver.find_element_in_xpath('//*[@id="mx_423"]').send_keys(time.date_to_string(end_date))
+        self.driver.find_element_in_xpath('//*[@id="mx_423"]').click()
 
     def _operator_period_control(self, xpath):
         """
@@ -28,11 +28,12 @@ class SpreadReport(Base):
         :param num:
         :return:
         """
-        self.web_driver.find_element_in_xpath('').click()
+        self.driver.find_element_in_xpath('').click()
 
     def _operator_name_control(self):
-        self.web_driver.find_element_in_xpath('//*[@id = "J_bpreport_dname_mx_1465"]').clear()
-        self.web_driver.find_element_in_xpath('//*[@id = "J_bpreport_dname_mx_1465"]').send_keys(
+        start_date = None
+        self.driver.find_element_in_xpath('//*[@id = "J_bpreport_dname_mx_1465"]').clear()
+        self.driver.find_element_in_xpath('//*[@id = "J_bpreport_dname_mx_1465"]').send_keys(
             time.date_to_string(start_date))
 
     def _operator_point_control(self):
@@ -46,9 +47,9 @@ class SpreadReport(Base):
         :return: True/False
         """
         try:
-            self.web_driver.get(self.page.url)  # 第一次请求到达平台默认页
-            self.web_driver.close(self.page.url)
-            self.web_driver.get(self.page.url)  # 第二次请求是为了到达指定的爬虫页
+            self.driver.get(self.page.url)  # 第一次请求到达平台默认页
+            self.driver.close(self.page.url)
+            self.driver.get(self.page.url)  # 第二次请求是为了到达指定的爬虫页
         except Exception as e:
             print(e, '请求失败,请检查传入的url是否有效:{}'.format(self.page.url))
             return False
@@ -69,7 +70,7 @@ class SpreadReportDay(SpreadReport):
             self._operator_time_control(start_date, end_date)
             self._operator_point_control()
             # 取数
-            self.web_driver.find_element_in_xpath('').text
+            self.driver.find_element_in_xpath('').text
         except Exception as e:
             Logging.error(e)
             self.error = ErrorEnum.ERROR_3000
@@ -99,6 +100,7 @@ class SpreadReportDay(SpreadReport):
             field_name_list.sort(reverse=True)
             field_tuple = tuple(field_name_list)
 
+            df = None
             self.page_data = PageDataService.set_file_column_flag(self.page_data, df.columns)
             df.rename(columns={'日期': '_日期'}, inplace=True)  # 将原始的日期字段名更改
             # 添加默认字段并赋值
@@ -177,6 +179,6 @@ class SpreadReportMonth(SpreadReport):
         self._operator_time_control(start_date, end_date)
         self._operator_point_control()
         # 取数
-        self.web_driver.find_element_in_xpath('').text
+        self.driver.find_element_in_xpath('').text
         symbol = True
         return symbol

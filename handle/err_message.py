@@ -53,8 +53,10 @@ class ErrorEnum(Enum):
     ERROR_9002 = ErrorMsg('9002', '未匹配到任务func')
     # 取数-初始化任务 1000-1999
     ERROR_1000 = ErrorMsg('1000', '未知异常')
-    ERROR_1001 = ErrorMsg('1001', '店铺未登录')
-    ERROR_1002 = ErrorMsg('1002', '店铺实例未找到')
+    ERROR_1001 = ErrorMsg('1001', '店铺实例未找到')
+    ERROR_1002 = ErrorMsg('1002', '页面实例未找到')
+    ERROR_1003 = ErrorMsg('1003', '通过端口接管浏览器失败')
+    ERROR_1004 = ErrorMsg('1004', '店铺未登录，无法继续取数')
     # 取数-登录操作 2000-2999
     ERROR_2000 = ErrorMsg('2000', '未知异常')
     # 取数-页面操作及文件下载/读取 3000-3999

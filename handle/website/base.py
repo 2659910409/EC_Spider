@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-from common.db import DB
+from common.db import DataBase
 from handle.err_message import ErrorEnum
 from common.private_logging import Logging
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from handle.common import private_time
+from common.private_time import Time
 import os
 import shutil
 import zipfile
@@ -33,7 +33,7 @@ class Base:
             self.store = StoreService().get_store(store_id)
             self.page_data = PageDataService().get_page_data(page_data_id)
             self.page = self.page_data.page
-            self.db = DB()
+            self.db = DataBase()
             self.port = port
             self.FILE_DOWNLOAD_PATH = setting.FILE_DOWNLOAD_PATH_PREFIX+'/'+self.store.name
             self.FILE_PROCESS_PATH = setting.FILE_PROCESS_PATH_PREFIX+'/'+self.store.name+'/'+self.page_data.name+'/'+self.page_data.data_update_freq
@@ -45,11 +45,11 @@ class Base:
             if not os.path.exists(self.FILE_BACKUP_PATH):
                 os.makedirs(self.FILE_BACKUP_PATH)
             # 下载目录清理
-            # TODO 可配置变量
-            file_prefix = ''
-            self.clear_download_path(file_prefix)
+            self.clear_download_path()
             # 初始化webdriver，判断是否已登录
-            self.web_driver = None
+            self.driver = None
+            self.init_web_driver()
+            self.check_store_login()
             # 下载文件取数时需要
             # TODO 数据列表定义
             self.file_names = []
@@ -125,7 +125,7 @@ class Base:
         数据入库
         :return: True/False
         """
-        DB.input_batch(self.data)
+        DataBase.input_batch(self.data)
         return True
 
     def operation_data_backup(self):
@@ -158,23 +158,36 @@ class Base:
     def set_error_msg(self, msg):
         self.error.value.set_msg(msg)
 
-    def get_webdriver(self):
+    def init_web_driver(self):
         """
-        根据端口获取浏览器
+        根据端口获取浏览器driver
         :return: True/False
         """
         try:
             chrome_options = Options()
             chrome_options.add_experimental_option("debuggerAddress", "127.0.0.1:{}".format(self.port))
-            self.web_driver = webdriver.Chrome(chrome_options=chrome_options)
+            self.driver = webdriver.Chrome(chrome_options=chrome_options)
+            Logging.info('{} - Chrome[{}]连接成功。'.format(self.store.name, self.port))
         except Exception as e:
-            Logging('无法接管端口为{}的浏览器'.format(self.port))
-            self.error = ErrorEnum.ERROR_1000
+            print(e)
+            Logging.error('port:{} 无法接管浏览器'.format(self.port))
+            self.error = ErrorEnum.ERROR_1003
+            raise Exception
+        return True
 
-    def clear_download_path(self, file_prefix=None):
+    def check_store_login(self):
+        self.driver.get('https://sycm.taobao.com')
+        Time.sleep(1)
+        current_url = self.driver.current_url
+        if 'login.htm' in current_url:
+            Logging.error('store:', self.store.name, 'current_url:', current_url, '店铺未登录，无法继续取数！')
+            self.error = ErrorEnum.ERROR_1004
+            raise Exception('store:', self.store.name, '店铺未登录，无法继续取数！')
+        self.login_flag = Time
+
+    def clear_download_path(self):
         """
         按文件前缀规则清理目录
-        :param file_prefix:
         :return:
         """
         # 未配置下载文件名规则，清空下载目录中的文件
@@ -182,15 +195,15 @@ class Base:
         for file in files:
             file_path = os.path.join(self.FILE_DOWNLOAD_PATH, file)
             if os.path.isfile(file_path):
-                if file_prefix is None or file.find(file_prefix) == 0:
-                    # TODO 文件做备份,规则？
+                if self.page_data.rule_read_file_prefix is None or file.find(self.page_data.rule_read_file_prefix) == 0:
+                    # TODO 文件做备份,时间戳.原文件名
                     os.remove(file_path)
                     print('清空文件夹 remove:', file_path)
 
-    def wait_download_finish(self, file_prefix=None, file_path_suffix=None):
+    def wait_download_finish(self, data_dimension_dict={}, file_type=None):
         """
         根据文件前缀规则匹配，文件是否下载完成
-        :param file_prefix:
+        :param file_type:
         :return:
         """
         # 文件下载超时3分钟
@@ -201,41 +214,56 @@ class Base:
                 file_path = os.path.join(self.FILE_DOWNLOAD_PATH, file)
                 # 文件下载中，文件后缀
                 if '.crdownload' in file or '.tmp' in file:
-                    private_time.time.sleep(1)
+                    Time.sleep(1)
                     timeout_num = timeout_num - 1
                     continue
                 # 匹配到的文件数量
                 match_file_cnt = 0
-                if file_prefix is None and os.path.isfile(file_path):
+                if self.page_data.rule_read_file_prefix is None and os.path.isfile(file_path):
                     match_file_cnt = match_file_cnt+1
-                elif file.find(file_prefix) == 0 and os.path.isfile(file_path):
+                elif file.find(self.page_data.rule_read_file_prefix) == 0 and os.path.isfile(file_path):
                     match_file_cnt = match_file_cnt + 1
-                if match_file_cnt == 0:
-                    private_time.time.sleep(1)
-                    timeout_num = timeout_num - 1
-                    continue
-                elif match_file_cnt == 1:
-                    self.file_names.append(file)
-                    # 将文件移到处理目录
-                    # TODO 指定存储文件目录规则
-                    if file_path_suffix is None:
-                        file_process_path = self.FILE_PROCESS_PATH
-                    else:
-                        self.file_path_suffix = str(file_path_suffix) # TODO 配置
-                        file_process_path = self.FILE_PROCESS_PATH+'/'+str(file_path_suffix)
-                        if not os.path.exists(file_process_path):
-                            os.makedirs(file_process_path)
-                    remote_path = os.path.join(file_process_path, file)
-                    # TODO 目标文件已存在备份？
-                    if not os.path.exists(remote_path):
-                        os.remove(remote_path)
-                    shutil.move(file_path, remote_path)  # 移动文件
-                    print("move %s -> %s" % (file_path, remote_path))
-                    # TODO 当前写死，通用需要文件类型配置
-                    self.source_data_list.append(pd.read_excel(remote_path))
-                    return True
+            if match_file_cnt == 0:
+                Time.sleep(1)
+                timeout_num = timeout_num - 1
+                continue
+            elif match_file_cnt == 1:
+                self.file_names.append(file)
+                # 将文件移到处理目录
+                if self.page_data.rule_save_path_suffix is None:
+                    file_process_path = self.FILE_PROCESS_PATH
                 else:
-                    raise Exception('文件下载失败')
+                    path_suffix = self.page_data.rule_save_path_suffix
+                    for key in data_dimension_dict.key():
+                        path_suffix = path_suffix.replace(key, data_dimension_dict[key])
+                    file_process_path = self.FILE_PROCESS_PATH+'/'+path_suffix
+                    if not os.path.exists(file_process_path):
+                        os.makedirs(file_process_path)
+                remote_path = os.path.join(file_process_path, file)
+                # TODO 目标文件已存在文件需重命名，时间戳.原文件名
+                if os.path.exists(remote_path):
+                    os.remove(remote_path)
+                shutil.move(file_path, remote_path)  # 移动文件
+                Logging.info("move %s -> %s" % (file_path, remote_path))
+                # 文件读取
+                # TODO 解压文件操作，多sheet操作
+                # TODO 通用需要文件类型配置，常规文件类型支持
+                if file_type is None:
+                    if file[-3:] == 'csv':
+                        file_type = 'csv'
+                    elif file[-3:] == 'xls' or file[-4:] == 'xlsx':
+                        file_type = 'excel'
+                if file_type == 'excel':
+                    df = pd.read_excel(remote_path)
+                elif file_type == 'csv':
+                    df = pd.read_csv(remote_path)
+                else:
+                    Logging.error('解析文件类型，未找到！')
+                    raise Exception('解析文件类型，未找到！')
+                self.source_data_list.append(df)
+                return True
+            else:
+                raise Exception('文件下载失败')
         return False
 
     def unzip(self, cache_path, cache_file_path):

@@ -1,10 +1,8 @@
 from handle.website.base import Base
 from handle.err_message import ErrorEnum
 from common.private_logging import Logging
-from retry import retry
 import pandas as pd
-from service.page_data_service import PageDataService
-from handle.common.private_time import *
+from common.util_time import *
 
 
 class SpreadReport(Base):
@@ -15,20 +13,21 @@ class SpreadReport(Base):
         :param end_date: 日期区间的结束日期,需自定义日期报表时指定
         """
         # 获取日期控件文本框并输入日期
-        self.web_driver.find_element_in_xpath('//*[@id="mx_1485"]').clear()
-        self.web_driver.find_element_in_xpath('//*[@id="mx_1485"]').send_keys(date_to_string(start_date))
-        self.web_driver.find_element_in_xpath('//*[@id="mx_1486"]').clear()
-        self.web_driver.find_element_in_xpath('//*[@id="mx_1486"]').send_keys(date_to_string(end_date))
+        self.driver.find_element_in_xpath('//*[@id="mx_1485"]').clear()
+        self.driver.find_element_in_xpath('//*[@id="mx_1485"]').send_keys(date_to_string(start_date))
+        self.driver.find_element_in_xpath('//*[@id="mx_1486"]').clear()
+        self.driver.find_element_in_xpath('//*[@id="mx_1486"]').send_keys(date_to_string(end_date))
         # 点击确定
-        self.web_driver.find_element_in_xpath('//*[@id="brix_6985"]/ div/div/div[2]/a[1]').click()
-        self.web_driver.find_element_in_xpath('//*[@id="J_bpreport_dpanel_mx_1465"]/form/div/a[1]').click()
+        self.driver.find_element_in_xpath('//*[@id="brix_6985"]/ div/div/div[2]/a[1]').click()
+        self.driver.find_element_in_xpath('//*[@id="J_bpreport_dpanel_mx_1465"]/form/div/a[1]').click()
 
     def _operator_name_control(self):
         """操作报表名称文本框"""
         file_name = self.page_data.name + date_to_string(get_current_timestamp(), '%Y%m%d%H%M%S')
-        self.web_driver.find_element_in_xpath('//*[@id="J_bpreport_dname_mx_1465"]').clear()
-        self.web_driver.find_element_in_xpath('//*[@id="J_bpreport_dname_mx_1465"]').send_keys(file_name)
-        self.web_driver.find_element_in_xpath('//*[@id="brix_brick_6587"]/ul/li[1]').click()
+        self.driver.find_element_in_xpath('//*[@id="J_bpreport_dname_mx_1465"]').clear()
+        self.driver.find_element_in_xpath('//*[@id="J_bpreport_dname_mx_1465"]').send_keys(file_name)
+        self.driver.find_element_in_xpath('//*[@id="brix_brick_6587"]/ul/li[1]').click()
+
 
     def _locate_page(self):
         """
@@ -37,9 +36,9 @@ class SpreadReport(Base):
         :return: True/False
         """
         try:
-            self.web_driver.get(self.page.url)  # 第一次请求到达平台默认页
-            self.web_driver.close(self.page.url)
-            self.web_driver.get(self.page.url)  # 第二次请求是为了到达指定的爬虫页
+            self.driver.get(self.page.url)  # 第一次请求到达平台默认页
+            self.driver.close(self.page.url)
+            self.driver.get(self.page.url)  # 第二次请求是为了到达指定的爬虫页
         except Exception as e:
             Logging.error(e)
             self.error = ErrorEnum.ERROR_3001
@@ -117,6 +116,7 @@ class SpreadReportBabyDay(SpreadReport):
             self.error = ErrorEnum.ERROR_5001
             return False
         return True
+
 
     def operation_data_input(self):
         """

@@ -84,3 +84,23 @@ class DataTabEntity:
         self.created = created
         self.updated = updated
         self.data_tab_columns = data_tab_columns
+
+    def get_columns(self):
+        cols = []
+        for col in self.data_tab_columns:
+            cols.append(col.col_name)
+        return cols
+
+    def get_file_columns(self):
+        cols = []
+        for col in self.data_tab_columns:
+            if col.is_file_column:
+                cols.append(col.col_name)
+        return cols
+
+    def get_file_check_columns(self):
+        cols = []
+        for col in self.data_tab_columns:
+            if col.is_file_column:
+                cols.append(col.check_col_name)
+        return cols

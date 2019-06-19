@@ -1,10 +1,11 @@
 from handle.website.base import Base
-from handle.common import time
+from common.util_time import *
 from common import db
 from retry import retry
 import pandas as pd
 import re
 import datetime
+
 
 class SpreadReport(Base):
     def _operator_time_control(self, start_date=None, end_date=None):
@@ -14,11 +15,11 @@ class SpreadReport(Base):
         :param end_date: 日期区间的结束日期,需自定义日期报表时指定
         :return: True/False
         """
-        self.web_driver.find_element_in_xpath('//*[@id="mx_423"]').clear()
-        self.web_driver.find_element_in_xpath('//*[@id="mx_423"]').send_keys(time.date_to_string(start_date))
-        self.web_driver.find_element_in_xpath('//*[@id="mx_423"]').clear()
-        self.web_driver.find_element_in_xpath('//*[@id="mx_423"]').send_keys(time.date_to_string(end_date))
-        self.web_driver.find_element_in_xpath('//*[@id="mx_423"]').click()
+        self.driver.find_element_in_xpath('//*[@id="mx_423"]').clear()
+        self.driver.find_element_in_xpath('//*[@id="mx_423"]').send_keys(date_to_string(start_date))
+        self.driver.find_element_in_xpath('//*[@id="mx_423"]').clear()
+        self.driver.find_element_in_xpath('//*[@id="mx_423"]').send_keys(date_to_string(end_date))
+        self.driver.find_element_in_xpath('//*[@id="mx_423"]').click()
 
 
     def _operator_period_control(self, period):
@@ -27,15 +28,15 @@ class SpreadReport(Base):
         :param num:
         :return:
         """
-        self.web_driver.find_element_in_xpath('').click()
+        self.driver.find_element_in_xpath('').click()
 
     def _operator_point_control(self):
         """   """
-        self.web_driver.find_element_in_xpath('').pop().click() # 取消已有勾选框
-        self.web_driver.find_element_in_xpath('').pop().click()
-        self.web_driver.find_element_in_xpath('').click() # 点击需要勾选的条件
-        self.web_driver.find_element_in_xpath('').click()
-        self.web_driver.find_element_in_xpath('').click() # 点击确定使条件生效
+        self.driver.find_element_in_xpath('').pop().click() # 取消已有勾选框
+        self.driver.find_element_in_xpath('').pop().click()
+        self.driver.find_element_in_xpath('').click() # 点击需要勾选的条件
+        self.driver.find_element_in_xpath('').click()
+        self.driver.find_element_in_xpath('').click() # 点击确定使条件生效
         # self.web_driver.find_element_in_xpath('').pop().click()
         # self.web_driver.find_element_in_xpath('').pop().click()
         # self.web_driver.find_element_in_xpath('').click()
@@ -48,9 +49,9 @@ class SpreadReport(Base):
         :return: True/False
         """
         try:
-            self.web_driver.get(url) # 第一次请求到达平台默认页
-            self.web_driver.close()
-            self.web_driver.get(url)  # 第二次请求是为了到达指定的爬虫页
+            self.driver.get(url) # 第一次请求到达平台默认页
+            self.driver.close()
+            self.driver.get(url)  # 第二次请求是为了到达指定的爬虫页
         except Exception as e:
             print(e, '请求失败,请检查传入的url是否有效:{}'.format(url))
             return False
@@ -63,14 +64,14 @@ class SpreadReportDay(SpreadReport):
         """
         报表条件筛选并下载报表
         """
-        start_date = time.get_last_month_date(time.get_current_date())[0]
-        end_date = time.date_add(time.get_current_date(), -1)
+        start_date = get_last_month_date(get_current_date())[0]
+        end_date = add_day(get_current_date(), -1)
         # 多条件筛选
         self._operator_period_control(self.period)
         self._operator_time_control(start_date, end_date)
         self._operator_point_control()
         # 取数
-        self.web_driver.find_element_in_xpath('').text
+        self.driver.find_element_in_xpath('').text
 
         return True
 
@@ -154,6 +155,6 @@ class SpreadReportMonth(SpreadReport):
         self._operator_time_control(start_date, end_date)
         self._operator_point_control()
         # 取数
-        self.web_driver.find_element_in_xpath('').text
+        self.driver.find_element_in_xpath('').text
         symbol = True
         return symbol

@@ -1,11 +1,10 @@
-from common.db import DB
-from handle.common.private_time import get_current_timestamp
-from entity.page_data import *
+from common.db import DataBase
+from common.util_time import get_current_timestamp
 
 
 class PageDao:
     def __init__(self):
-        self.db = DB()
+        self.db = DataBase()
 
     def insert(self, website, name, menu_level_first, url, menu_level_second=None, menu_level_third=None):
         key = self.db.insert("insert into t_page (website, name, menu_level_first, menu_level_second, menu_level_third, url, created, updated) values(%s{})".format(", %s"*7), (website, name, menu_level_first, menu_level_second, menu_level_third, url, get_current_timestamp(), get_current_timestamp()))
@@ -23,7 +22,7 @@ class PageDao:
 
 class DataTabColumnDao:
     def __init__(self):
-        self.db = DB()
+        self.db = DataBase()
 
     def insert(self, data_tab_id, col_name, col_type, col_type_length, col_description, check_col_name, is_file_column, is_primary_key, is_data_maintenance_pk):
         key = self.db.insert("insert into t_data_tab_column (data_tab_id, col_name, col_type, col_type_length, col_description, check_col_name, is_file_column, is_primary_key, is_data_maintenance_pk, created, updated) values(%s{})".format(", %s"*10), (data_tab_id, col_name, col_type, col_type_length, col_description, check_col_name, is_file_column, is_primary_key, is_data_maintenance_pk, get_current_timestamp(), get_current_timestamp()))
@@ -44,7 +43,7 @@ class DataTabColumnDao:
 
 class PageDataConfDao:
     def __init__(self):
-        self.db = DB()
+        self.db = DataBase()
 
     def insert(self, page_data_id, p_type, p_key, p_value, p_description):
         key = self.db.insert("insert into t_page_data_conf (page_data_id, p_type, p_key, p_value, p_description, created, updated) values(%s{})".format(", %s"*6), (page_data_id, p_type, p_key, p_value, p_description, get_current_timestamp(), get_current_timestamp()))
@@ -65,7 +64,7 @@ class PageDataConfDao:
 
 class PageDataDao:
     def __init__(self):
-        self.db = DB()
+        self.db = DataBase()
 
     def insert(self, page_id, name, status, data_source_type, data_update_freq, data_update_time, rule_read_file_prefix, rule_save_path_suffix):
         key = self.db.insert("insert into t_page_data (page_id, name, status, data_source_type, data_update_freq, data_update_time, rule_read_file_prefix, rule_save_path_suffix, created, updated) values(%s{})".format(", %s"*9), (page_id, name, status, data_source_type, data_update_freq, data_update_time, rule_read_file_prefix, rule_save_path_suffix, get_current_timestamp(), get_current_timestamp()))
@@ -87,7 +86,7 @@ class PageDataDao:
 
 class DataTabDao:
     def __init__(self):
-        self.db = DB()
+        self.db = DataBase()
 
     def insert(self, name, page_data_id, check_name_rule, business_columns, pre_cnt=1):
         key = self.db.insert("insert into t_data_tab (name, page_data_id, check_name_rule, business_columns, pre_cnt, created, updated) values(%s{})".format(", %s"*6), (name, page_data_id, check_name_rule, business_columns, pre_cnt, get_current_timestamp(), get_current_timestamp()))

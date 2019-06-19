@@ -1,4 +1,4 @@
-from common.db import DB
+from common.db import DataBase
 
 
 class Task:
@@ -7,7 +7,7 @@ class Task:
     """
     def __init__(self):
         self.error = None
-        self.db = DB()
+        self.db = DataBase()
 
     def is_success(self):
         if self.error is None:
