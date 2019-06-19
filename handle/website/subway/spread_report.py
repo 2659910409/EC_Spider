@@ -23,7 +23,7 @@ class SpreadReport(Base):
 
     def _operator_name_control(self):
         """操作报表名称文本框"""
-        file_name = self.page_data.name + date_to_string(get_current_timestamp(), '%Y%m%d%H%M%S')
+        file_name = 'RPA' + date_to_string(get_current_timestamp(), '%Y%m%d%H%M%S')
         self.driver.find_element_in_xpath('//*[@id="J_bpreport_dname_mx_1465"]').clear()
         self.driver.find_element_in_xpath('//*[@id="J_bpreport_dname_mx_1465"]').send_keys(file_name)
         self.driver.find_element_in_xpath('//*[@id="brix_brick_6587"]/ul/li[1]').click()
@@ -63,7 +63,7 @@ class SpreadReportBabyDay(SpreadReport):
             self.web_driver.get(download_url)
             # 获取总页数
             page_num = self.web_driver.find_element_in_xpath('//*[@id="brix_brick_291"]/div[2]/div[2]/span[2]').text
-            file_name = self.page_data.name + date_to_string(get_current_timestamp(), '%Y%m%d%H%M%S')
+            file_name = 'RPA' + date_to_string(get_current_timestamp(), '%Y%m%d%H%M%S')
             for x in range(page_num):
                 download_url = 'https://subway.simba.taobao.com/#!/report/bpreport/download' + '?page={}'.format(x)
                 self.web_driver.get(download_url)
