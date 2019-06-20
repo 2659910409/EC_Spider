@@ -12,6 +12,7 @@ import pandas as pd
 from service.store_service import StoreService
 from service.page_data_service import PageDataService
 import setting
+from entity.page_data import DataTabEntity
 
 
 class Base:
@@ -35,9 +36,10 @@ class Base:
             self.page = self.page_data.page
             self.db = DataBase()
             self.port = port
+            self.FILE_PART_PATH = self.store.name+'/'+self.page_data.name+'/'+self.page_data.data_update_freq
             self.FILE_DOWNLOAD_PATH = setting.FILE_DOWNLOAD_PATH_PREFIX+'/'+self.store.name
-            self.FILE_PROCESS_PATH = setting.FILE_PROCESS_PATH_PREFIX+'/'+self.store.name+'/'+self.page_data.name+'/'+self.page_data.data_update_freq
-            self.FILE_BACKUP_PATH = setting.FILE_BACKUP_PATH_PREFIX+'/'+self.store.name+'/'+self.page_data.name+'/'+self.page_data.data_update_freq
+            self.FILE_PROCESS_PATH = setting.FILE_PROCESS_PATH_PREFIX+'/'+self.FILE_PART_PATH
+            self.FILE_BACKUP_PATH = setting.FILE_BACKUP_PATH_PREFIX+'/'+self.FILE_PART_PATH
             if not os.path.exists(self.FILE_DOWNLOAD_PATH):
                 os.makedirs(self.FILE_DOWNLOAD_PATH)
             if not os.path.exists(self.FILE_PROCESS_PATH):
@@ -54,12 +56,18 @@ class Base:
             self.data_dimension_dict = {}
             # 下载文件取数时需要
             self.file_names = []
-            # TODO 数据列表定义
+            # 单文件、单数据表存储，例：[DataFrame]
+            # 多文件/多sheet、单数据表存储，例：[DataFrame, DataFrame, DataFrame] # TODO 暂无忽略
+            # 多文件/多sheet、多数据表存储：判断条件 page_data.is_multiple_tab()
+            # 例：[{'tab.name', [DataFrame]}, {'tab.name', [DataFrame, DataFrame]}]
             self.source_data_list = []
             self.data_list = []
         except Exception as e:
             Logging.error(e)
             self.error = ErrorEnum.ERROR_1000
+
+    def get_file_path_effective(self):
+        return self.FILE_PROCESS_PATH.replace(setting.FILE_PROCESS_PATH_PREFIX)
 
     def get_file_names(self):
         if len(self.file_names) == 0:
@@ -119,7 +127,7 @@ class Base:
         2） 数据列类型转换:self.data_list
         :return: True/False
         """
-        self.data_list = self.source_data_list
+        # self.data_list = self.source_data_list
         return True
 
     def operation_data_input(self):
@@ -127,7 +135,7 @@ class Base:
         数据入库
         :return: True/False
         """
-        DataBase.input_batch(self.data)
+        # DataBase.input_batch(self.data)
         return True
 
     def operation_data_backup(self):
@@ -135,15 +143,19 @@ class Base:
         目前只针对下载文件 进行数据备份（针对文件下载类取数）
         :return: True/False
         """
-        if self.page_data.is_file_download():
+        if not self.page_data.is_file_download():
             return True
         for file_name in self.get_file_names():
-            if self.self.file_path_suffix is None:
+            # 存在特殊目录规则时 rule_save_path_suffix 不为空，目录后缀增加该规则
+            path_suffix = self.page_data.rule_save_path_suffix
+            if path_suffix is None:
                 shutil.move(os.path.join(self.FILE_PROCESS_PATH, file_name), os.path.join(self.FILE_BACKUP_PATH, file_name))
                 print("move %s -> %s" % (os.path.join(self.FILE_PROCESS_PATH, file_name), os.path.join(self.FILE_BACKUP_PATH, file_name)))
             else:
-                process_path = self.FILE_PROCESS_PATH + '/' + str(self.file_path_suffix)
-                backup_path = self.FILE_BACKUP_PATH + '/' + str(self.file_path_suffix)
+                for key in self.data_dimension_dict.keys():
+                    path_suffix = path_suffix.replace(key, self.data_dimension_dict[key])
+                process_path = self.FILE_PROCESS_PATH + '/' + path_suffix
+                backup_path = self.FILE_BACKUP_PATH + '/' + path_suffix
                 if not os.path.exists(backup_path):
                     os.makedirs(backup_path)
                 shutil.move(os.path.join(process_path, file_name), os.path.join(backup_path, file_name))
@@ -250,7 +262,7 @@ class Base:
                 shutil.move(file_path, remote_path)  # 移动文件
                 Logging.info("move %s -> %s" % (file_path, remote_path))
                 # 文件读取
-                # TODO 解压文件操作，多sheet操作
+                # TODO 解压文件操作，多文件、多sheet操作
                 # TODO 通用需要文件类型配置，常规文件类型支持
                 if file_type is None:
                     if file[-3:] == 'csv':
@@ -338,7 +350,72 @@ class Base:
             _string = round(float(_string) / 100)
         return float(_string)
 
-    def gen_data_maintenane_condition(self, tab, df):
+    def df_effective_by_starting_position(self, starting_position, source_df: pd.DataFrame):
+        """
+        根据启始位置，获取有效数据
+        :param starting_position: 起始位置
+        :param source_df: 原始数据
+        :return: DataFrame
+        """
+        get_data_flag = False
+        data_cols = None  # 数据表title
+        data_list = []  # 数据表内容
+        for index, row in source_df.T.iteritems():
+            values = row.values
+            if get_data_flag:
+                data_list.append(values)
+            if values[0] == starting_position:
+                get_data_flag = True
+                data_cols = values
+        if len(data_list) == 0:
+            Logging.warning('无数据！')
+            return True
+        df = pd.DataFrame(data_list, columns=data_cols)
+        return df
+
+    def df_data_process(self, data_tab: DataTabEntity, df: pd.DataFrame):
+        """
+        取所需数据列，数据类型转换
+        :param data_tab: 数据表配置
+        :param df: 待数据数据DataFrame
+        :return: DataFrame
+        """
+        conf_columns = data_tab.get_file_columns()
+        conf_check_columns = data_tab.get_file_check_columns()
+        intersection_col = []
+        data_col_ind = []
+        # for col in conf_check_columns:
+        #     if col in data_cols:
+        #         data_col_ind.append(data_cols.index(col))
+        #         intersection_col.append(col)
+        # for d in data_list:
+        #     _row = []
+        #     for ind in data_col_ind:
+        #         col_name = intersection_col[ind]
+        #         col_val = d[ind]
+        #         if col_name in ['int', 'bigint', 'int32', 'int64', 'tinyint', 'integer']:
+        #             _col_val = self.str_to_int(col_val)
+        #         elif col_name in ['float', 'numeric', 'decimal', 'double']:
+        #             _col_val = self.str_to_float(col_val)
+        #         elif col_name in ['varchar', 'string']:
+        #             _col_val = self.str_to_int(col_val)
+        #         else:
+        #             _col_val = col_val
+        #         _row.append(_col_val)
+        #     _data.append(_row)
+        # # 数据列校验, TODO 监控告警
+        # tmp_surplus = list(set(data_cols) - set(conf_columns))  # 新增字段/列
+        # tmp_defect = list(set(conf_columns) - set(data_cols))  # 缺少字段/列
+        # Logging.warning('字段列匹配，原始字段列表：', data_cols) if len(tmp_surplus + tmp_defect) > 0 else None
+        # Logging.warning('字段列匹配，配置字段列表：', conf_columns) if len(tmp_surplus + tmp_defect) > 0 else None
+        # Logging.warning('字段列匹配，新增字段/列：', tmp_surplus) if len(tmp_surplus) > 0 else None
+        # Logging.warning('字段列匹配，缺少字段/列：', tmp_defect) if len(tmp_defect) > 0 else None
+        # # DataFrame生成
+        # import pandas as pd
+        # df = pd.DataFrame(_data, columns=intersection_col)
+        return df
+
+    def gen_data_maintenane_condition(self, tab: DataTabEntity, df: pd.DataFrame):
         """
         根据配置与数据，生成数据维护条件
         :param tab:
@@ -347,7 +424,7 @@ class Base:
         """
         return ''
 
-    def gen_data_insert_values(self, tab, df):
+    def gen_data_insert_values(self, tab: DataTabEntity, df: pd.DataFrame):
         """
 
         :param tab:

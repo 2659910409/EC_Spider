@@ -22,74 +22,35 @@ class Flow(Base):
         Time.sleep(6)
 
     def operation_data_process(self):
-        if self.page_data.is_multiple_data():
+        if self.page_data.is_multiple_tab():
             # TODO 多个，待完善
             self.get_source_data_list()
             pass
         else:
-            # step1：取有效数据列表
-            start_position = '来源名称'
-            source_data = self.get_source_data()
-            get_data_flag = False
-            data_cols = [] # 数据表title
-            data_list = [] # 数据表内容
-            for index, row in source_data.T.iteritems():
-                values = row.values
-                if get_data_flag:
-                    data_list.append(values)
-                if values[0] == start_position:
-                    get_data_flag = True
-                    data_cols = values
-            if len(data_list) == 0:
-                Logging.warning('无数据！')
-                return True
-            # step2：取所需数据列
-            _data = []
+            # step1：根据启始位置，获取有效数据
+            starting_position = '来源名称'
+            source_df = self.get_source_data()
+            pro_df = self.df_effective_by_starting_position(starting_position, source_df)
+            # step2：取所需数据列，数据类型转换
             data_tab = self.page_data.data_tabs[0]
-            conf_columns = data_tab.get_file_columns()
-            conf_check_columns = data_tab.get_file_columns()
-            intersection_col = []
-            data_col_ind = []
-            for col in conf_check_columns:
-                if col in data_cols:
-                    data_col_ind.append(data_cols.index(col))
-                    intersection_col.append(col)
-            for d in data_list:
-                _row = []
-                for ind in data_col_ind:
-                    col_name = intersection_col[ind]
-                    col_val = d[ind]
-                    if col_name in ['int', 'bigint', 'int32', 'int64', 'tinyint', 'integer']:
-                        _col_val = self.str_to_int(col_val)
-                    elif col_name in ['float', 'numeric', 'decimal', 'double']:
-                        _col_val = self.str_to_float(col_val)
-                    elif col_name in ['varchar', 'string']:
-                        _col_val = self.str_to_int(col_val)
-                    else:
-                        _col_val = col_val
-                    _row.append(_col_val)
-                _data.append(_row)
-            # 数据列校验, TODO 监控告警
-            tmp_surplus = list(set(data_cols) - set(conf_columns)) # 新增字段/列
-            tmp_defect = list(set(conf_columns) - set(data_cols)) # 缺少字段/列
-            Logging.warning('字段列匹配，原始字段列表：', data_cols) if len(tmp_surplus+tmp_defect) > 0 else None
-            Logging.warning('字段列匹配，配置字段列表：', conf_columns) if len(tmp_surplus+tmp_defect) > 0 else None
-            Logging.warning('字段列匹配，新增字段/列：', tmp_surplus) if len(tmp_surplus) > 0 else None
-            Logging.warning('字段列匹配，缺少字段/列：', tmp_defect) if len(tmp_defect) > 0 else None
-            # DataFrame生成
-            import pandas as pd
-            df = pd.DataFrame(_data, columns=intersection_col)
-            # TODO 公共列增加
+            df = self.df_data_process(data_tab, pro_df)
+            # step3：DataFrame添加公共字段
             df['店铺id'] = self.store.id
             df['店铺'] = self.store.name
             df['日期'] = get_yesterday()
-            df['取数时间'] = get_current_date('%Y-%m-%d %H:%M:%S')
+            if self.page_data.is_file_download():
+                df['文件路径'] = self.get_file_path_effective()
+                df['文件sheet'] = self.get_file_name()
+                # TODO 获取文件时间戳
+                df['取数时间'] = get_current_date('%Y-%m-%d %H:%M:%S')
+            else:
+                df['取数时间'] = get_current_date('%Y-%m-%d %H:%M:%S')
             df['入库时间'] = get_current_date('%Y-%m-%d %H:%M:%S')
             self.data_list.append(df)
 
     def operation_data_input(self):
         # TODO 匹配字段入库
-        if self.page_data.is_multiple_data():
+        if self.page_data.is_multiple_tab():
             # TODO 多个，待完善
             self.get_data_list()
             pass
