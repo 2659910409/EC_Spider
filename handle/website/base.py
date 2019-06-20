@@ -182,6 +182,7 @@ class Base:
             chrome_options = Options()
             chrome_options.add_experimental_option("debuggerAddress", "127.0.0.1:{}".format(self.port))
             self.driver = webdriver.Chrome(chrome_options=chrome_options)
+
             Logging.info('{} - Chrome[{}]连接成功。'.format(self.store.name, self.port))
         except Exception as e:
             print(e)
