@@ -30,11 +30,17 @@ def get_yesterday():
 def get_time():
     return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
 
+
 def get_current_date_format(fmt):
     return time.strftime(fmt, time.localtime())
 
 
 def add_month(date, months):
+    """
+    :param date: 需要做加减的日期
+    :param months: 加减的月数,为正值代表加上相应的月数,为负值则代表减去相应月数
+    :return: 结果日期,为YYYY-MM-DD格式
+    """
     date = date + relativedelta(months=months)
     return date
 
@@ -52,6 +58,7 @@ def get_last_month_date(date):
 def date_to_string(date_time, fmt):
     """
     :param date_time: 日期或时间戳类型
+    :param fmt: 需要转化的日期格式
     :return: 日期格式为YYYY-MM-DD的字符串
     """
     date_str = date_time.strftime(fmt)

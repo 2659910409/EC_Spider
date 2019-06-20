@@ -93,8 +93,10 @@ class SpreadReportBabyDay(SpreadReport):
                     default_add_field.append(data_tab_column.col_name)
                 db_field_names.append(data_tab_column.col_name)
             # check_field_names.sort(reverse=True)
-            # 添加默认字段并赋值
+            #
             df = self.source_data_list[0]  # 取出读取到的data_frame
+
+            #添加默认字段并赋值
             df = pd.concat([df, pd.DataFrame(columns=self.default_add_field)], sort=False)
             df['店铺id'] = self.store.id
             df['店铺名'] = self.store.name
