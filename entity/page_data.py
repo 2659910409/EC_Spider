@@ -58,6 +58,10 @@ class PageDataEntity:
         self.data_tabs = data_tabs
 
     def is_file_download(self):
+        """
+        是否是文件下载取数
+        :return: True/False
+        """
         if self.data_source_type == 'file':
             return True
         elif self.data_source_type == 'html':
@@ -65,7 +69,11 @@ class PageDataEntity:
         else:
             raise Exception('未知的源数据类型 data_source_type:', self.data_source_type)
 
-    def is_multiple_data(self):
+    def is_multiple_tab(self):
+        """
+        是否入库多张表
+        :return: True/False
+        """
         if len(self.data_tabs) > 1:
             return True
         elif len(self.data_tabs) == 0:
@@ -86,12 +94,20 @@ class DataTabEntity:
         self.data_tab_columns = data_tab_columns
 
     def get_columns(self):
+        """
+        获取所有字段列表
+        :return: List
+        """
         cols = []
         for col in self.data_tab_columns:
             cols.append(col.col_name)
         return cols
 
     def get_file_columns(self):
+        """
+        获取文件字段列表
+        :return: List
+        """
         cols = []
         for col in self.data_tab_columns:
             if col.is_file_column:
@@ -99,6 +115,10 @@ class DataTabEntity:
         return cols
 
     def get_file_check_columns(self):
+        """
+        获取文件检查字段列表
+        :return: List
+        """
         cols = []
         for col in self.data_tab_columns:
             if col.is_file_column:
